@@ -229,6 +229,16 @@ function snapPreRollBuffer(value: number): number {
   return Math.round(clamped / PRE_ROLL_BUFFER_STEP_MS) * PRE_ROLL_BUFFER_STEP_MS;
 }
 
+export const ZOOM_LEVEL_MIN = 70;
+export const ZOOM_LEVEL_MAX = 150;
+export const ZOOM_LEVEL_STEP = 5;
+
+export function snapZoomLevel(value: number): number {
+  if (typeof value !== "number" || Number.isNaN(value) || value <= 0) return 100;
+  const clamped = Math.max(ZOOM_LEVEL_MIN, Math.min(ZOOM_LEVEL_MAX, value));
+  return Math.round(clamped / ZOOM_LEVEL_STEP) * ZOOM_LEVEL_STEP;
+}
+
 function readStringArray(key: string, fallback: string[]): string[] {
   if (!isBrowser) return fallback;
   const stored = localStorage.getItem(key);
@@ -1208,6 +1218,7 @@ export interface SettingsState
   setPreRollBufferMs: (ms: number) => void;
 
   setTheme: (value: "light" | "dark" | "auto") => void;
+  setZoomLevel: (value: number) => void;
   setCloudBackupEnabled: (value: boolean) => void;
   setInsightsSyncEnabled: (value: boolean) => void;
   setTelemetryEnabled: (value: boolean) => void;
@@ -1630,6 +1641,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     if (v === "light" || v === "dark" || v === "auto") return v;
     return "auto" as const;
   })(),
+  zoomLevel: snapZoomLevel(readNumber("zoomLevel", 100)),
   cloudBackupEnabled: readBoolean("cloudBackupEnabled", false),
   insightsSyncEnabled: readBoolean("insightsSyncEnabled", false),
   telemetryEnabled: readBoolean("telemetryEnabled", false),
@@ -2385,6 +2397,15 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   setTheme: (value: "light" | "dark" | "auto") => {
     if (isBrowser) localStorage.setItem("theme", value);
     set({ theme: value });
+  },
+
+  setZoomLevel: (value: number) => {
+    const snapped = snapZoomLevel(value);
+    if (isBrowser) localStorage.setItem("zoomLevel", String(snapped));
+    set({ zoomLevel: snapped });
+    if (typeof window !== "undefined" && window.electronAPI?.setZoomFactor) {
+      window.electronAPI.setZoomFactor(snapped / 100);
+    }
   },
 
   setCloudBackupEnabled: createBooleanSetter("cloudBackupEnabled"),
@@ -3300,6 +3321,9 @@ export async function initializeSettings(): Promise<void> {
   const state = useSettingsStore.getState();
 
   if (window.electronAPI) {
+    if (window.electronAPI.setZoomFactor && typeof state.zoomLevel === "number") {
+      window.electronAPI.setZoomFactor(state.zoomLevel / 100);
+    }
     // Preferences are already in localStorage; do not wait for secret or provider hydration.
     try {
       await window.electronAPI.syncNotificationPreferences?.({

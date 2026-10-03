@@ -2035,6 +2035,8 @@ declare global {
       snapToMeetingMode: () => Promise<void>;
       restoreFromMeetingMode: () => Promise<void>;
       getPlatform: () => string;
+      getZoomFactor?: () => number;
+      setZoomFactor?: (factor: number) => void;
       startWindowDrag: () => Promise<void>;
       stopWindowDrag: () => Promise<void>;
       startControlPanelDrag: () => Promise<void>;

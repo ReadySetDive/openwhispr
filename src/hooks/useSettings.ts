@@ -118,6 +118,7 @@ export interface PrivacySettings {
 
 export interface ThemeSettings {
   theme: "light" | "dark" | "auto";
+  zoomLevel: number;
 }
 
 export interface ChatAgentSettings {
@@ -338,6 +339,8 @@ function useSettingsInternal() {
     meetingHotkeyLayoutMode: store.meetingHotkeyLayoutMode,
     setMeetingHotkeyLayoutMode: store.setMeetingHotkeyLayoutMode,
     theme: store.theme,
+    zoomLevel: store.zoomLevel,
+    setZoomLevel: store.setZoomLevel,
     setUseLocalWhisper: store.setUseLocalWhisper,
     setWhisperModel: store.setWhisperModel,
     setUiLanguage: store.setUiLanguage,

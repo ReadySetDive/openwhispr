@@ -34,6 +34,7 @@ import {
 } from "../stores/settingsStore";
 import { usePolicyStore } from "../stores/policyStore";
 import { usePolicySnapshot } from "../hooks/usePolicy";
+import { useZoomShortcuts } from "../hooks/useZoomShortcuts";
 import {
   isAgentAllowed,
   isControlPanelViewAllowed,
@@ -131,6 +132,7 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
   } | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const showDiscarded = useShowDiscarded();
+  useZoomShortcuts();
   const [activeView, setActiveView] = useState<ControlPanelView>("home");
   const [integrationsSection, setIntegrationsSection] = useState<IntegrationsSection>(
     DEFAULT_INTEGRATIONS_SECTION

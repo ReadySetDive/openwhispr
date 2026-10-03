@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer, webUtils } = require("electron");
+const { contextBridge, ipcRenderer, webUtils, webFrame } = require("electron");
 
 // BYOK API-key bridges, built once instead of hand-listed per key. Sandboxed
 // preloads can't require local modules, so the {base, get, save} tuples are
@@ -526,6 +526,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   snapToMeetingMode: () => ipcRenderer.invoke("snap-to-meeting-mode"),
   restoreFromMeetingMode: () => ipcRenderer.invoke("restore-from-meeting-mode"),
   getPlatform: () => process.platform,
+  getZoomFactor: () => webFrame.getZoomFactor(),
+  setZoomFactor: (factor) => webFrame.setZoomFactor(factor),
 
   // Cleanup function
   cleanupApp: () => ipcRenderer.invoke("cleanup-app"),

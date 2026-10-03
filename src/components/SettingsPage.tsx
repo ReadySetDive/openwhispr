@@ -127,8 +127,12 @@ import {
   TRANSCRIPTION_ENTERPRISE_POLICY_PROVIDER_IDS,
   TRANSCRIPTION_POLICY_PROVIDER_IDS,
   useSettingsStore,
+  ZOOM_LEVEL_MIN,
+  ZOOM_LEVEL_MAX,
+  ZOOM_LEVEL_STEP,
   type HotkeyRegistrationResult,
 } from "../stores/settingsStore";
+import { Slider } from "./ui/slider";
 import { useWorkspaceStore } from "../stores/workspaceStore";
 import { highestPlan } from "../lib/usageStore";
 import { decideProPlanCardCta } from "../lib/upsell";
@@ -1392,6 +1396,8 @@ export default function SettingsPage({
   }, [refreshYdotoolStatus]);
 
   const { theme, setTheme } = useTheme();
+  const zoomLevel = useSettingsStore((s) => s.zoomLevel);
+  const setZoomLevel = useSettingsStore((s) => s.setZoomLevel);
   const usage = useUsage();
   const billingWorkspaces = useWorkspaceStore((s) => s.workspaces);
   const activeWorkspaceId = useWorkspaceStore((s) => s.activeWorkspaceId);
@@ -3017,6 +3023,38 @@ export default function SettingsPage({
                           </button>
                         );
                       })}
+                    </div>
+                  </SettingsRow>
+                </SettingsPanelRow>
+                <SettingsPanelRow>
+                  <SettingsRow
+                    label={t("settingsPage.general.appearance.zoom", "Interface Scale")}
+                    description={t(
+                      "settingsPage.general.appearance.zoomDescription",
+                      "Adjust the text and interface zoom level (Ctrl+ / Ctrl- / Ctrl+0)"
+                    )}
+                  >
+                    <div className="flex items-center gap-3 w-56">
+                      <Slider
+                        min={ZOOM_LEVEL_MIN}
+                        max={ZOOM_LEVEL_MAX}
+                        step={ZOOM_LEVEL_STEP}
+                        value={zoomLevel}
+                        onChange={setZoomLevel}
+                        aria-label={t("settingsPage.general.appearance.zoom", "Interface Scale")}
+                        className="flex-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setZoomLevel(100)}
+                        title={t(
+                          "settingsPage.general.appearance.resetZoomTooltip",
+                          "Reset to 100% (Ctrl+0)"
+                        )}
+                        className="w-14 text-right text-xs font-mono font-medium text-foreground hover:text-primary transition-colors cursor-pointer"
+                      >
+                        {zoomLevel}%
+                      </button>
                     </div>
                   </SettingsRow>
                 </SettingsPanelRow>
