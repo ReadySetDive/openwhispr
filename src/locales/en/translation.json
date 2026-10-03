@@ -1623,10 +1623,10 @@
   "settingsPage": {
     "workspace": {
       "title": "Workspace",
-      "description": "Collaborate with teammates, share notes, and manage workspace access in one place.",
+      "description": "Manage your workspace settings, developer access, and resources.",
       "empty": {
         "title": "Create your first workspace",
-        "description": "Workspaces let you collaborate with teammates and share notes.",
+        "description": "Workspaces let you organize your notes and API resources.",
         "create": "Create workspace"
       },
       "loadError": {

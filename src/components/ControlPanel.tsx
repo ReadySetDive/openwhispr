@@ -15,9 +15,7 @@ import { useHotkey } from "../hooks/useHotkey";
 import { useToast } from "./ui/useToast";
 import { useSettings } from "../hooks/useSettings";
 import { useAuth } from "../hooks/useAuth";
-import { useJoinableWorkspaces } from "../hooks/useJoinableWorkspaces";
 import { useWorkspace } from "../hooks/useWorkspace";
-import { manageableWorkspaces, selectWorkspaceForSpaceCreation } from "../lib/workspaceSelection";
 import { useUsage } from "../hooks/useUsage";
 import { decideUpsell } from "../lib/upsell";
 import { useCollapsibleSidebar } from "../hooks/useCollapsibleSidebar";
@@ -86,7 +84,6 @@ import SpaceSyncToastListener from "./notes/SpaceSyncToastListener";
 import { syncService } from "../services/SyncService.js";
 import logger from "../utils/logger";
 import AcceptInvitationModal from "./AcceptInvitationModal";
-import JoinYourTeamModal from "./JoinYourTeamModal";
 import {
   consumePendingInvitationToken,
   clearPendingInvitationToken,
@@ -98,9 +95,7 @@ const SIDEBAR_WIDTH_PX = 192;
 
 const SettingsModal = React.lazy(() => import("./SettingsModal"));
 const ReferralModal = React.lazy(() => import("./ReferralModal"));
-const InviteTeammateDialog = React.lazy(() => import("./InviteTeammateDialog"));
 const PersonalNotesView = React.lazy(() => import("./notes/PersonalNotesView"));
-const InsightsView = React.lazy(() => import("./InsightsView"));
 const DictionaryView = React.lazy(() => import("./DictionaryView"));
 const UploadAudioView = React.lazy(() => import("./notes/UploadAudioView"));
 const IntegrationsView = React.lazy(() => import("./IntegrationsView"));
@@ -128,7 +123,6 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
     () => localStorage.getItem("aiCTADismissed") === "true"
   );
   const [showReferrals, setShowReferrals] = useState(false);
-  const [showInviteTeam, setShowInviteTeam] = useState(false);
   const [invitationToken, setInvitationToken] = useState<string | null>(null);
   const [invitationNotesEntry, setInvitationNotesEntry] = useState<{
     workspaceId: string;
@@ -169,20 +163,7 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
   const { toast } = useToast();
   const { useCleanupModel } = useSettings();
   const { isSignedIn, isLoaded: authLoaded, user } = useAuth();
-  // Suppressed while a deep-linked invitation is open so the two never stack.
-  const {
-    joinable,
-    dismiss: dismissJoinable,
-    markRequested,
-  } = useJoinableWorkspaces(user?.id ?? null, isSignedIn && !invitationToken);
   const { workspaces, active: activeWorkspace } = useWorkspace();
-  // Invitations are owner/admin-only (server-enforced), so the sidebar row
-  // only exists when the user can manage a workspace.
-  const inviteWorkspace = selectWorkspaceForSpaceCreation(
-    manageableWorkspaces(workspaces),
-    activeWorkspace,
-    null
-  );
   const usage = useUsage();
   const upsell = decideUpsell({
     authLoaded,
@@ -836,17 +817,6 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
         </Suspense>
       )}
 
-      {showInviteTeam && inviteWorkspace && (
-        <Suspense fallback={null}>
-          <InviteTeammateDialog
-            open={showInviteTeam}
-            onOpenChange={setShowInviteTeam}
-            workspaceId={inviteWorkspace.id}
-            workspaceName={inviteWorkspace.name}
-          />
-        </Suspense>
-      )}
-
       <AcceptInvitationModal
         token={invitationToken}
         onClose={() => setInvitationToken(null)}
@@ -854,14 +824,6 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
           setInvitationNotesEntry(entry);
           setActiveView("personal-notes");
         }}
-      />
-
-      <JoinYourTeamModal
-        joinable={joinable}
-        domain={user?.email?.split("@")[1] ?? null}
-        onDismiss={dismissJoinable}
-        onRequested={markRequested}
-        onJoined={() => setActiveView("personal-notes")}
       />
 
       {/* Always mounted so the palette chunk is warm and Radix can play its exit animation. */}
@@ -912,7 +874,6 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
               setShowSettings(true);
             }}
             onOpenReferrals={undefined}
-            onInviteTeam={inviteWorkspace ? () => setShowInviteTeam(true) : undefined}
             onUpgrade={() => {
               setSettingsSection("account");
               setShowSettings(true);
@@ -1076,16 +1037,6 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
                     setActiveView("integrations");
                   }}
                 />
-              )}
-              {activeView === "insights" && (
-                <Suspense fallback={null}>
-                  <InsightsView
-                    onSignIn={() => {
-                      setSettingsSection("account");
-                      setShowSettings(true);
-                    }}
-                  />
-                </Suspense>
               )}
               {activeView === "chat" && agentAllowedByPolicy && (
                 <Suspense fallback={null}>

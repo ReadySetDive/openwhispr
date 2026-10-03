@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ShieldCheck,
   Users,
+  Calendar,
 } from "../icons";
 import ShareNoteDialog, { type NoteExportOption } from "./ShareNoteDialog";
 import { reconcileLocalShareState } from "./shareNoteRules";
@@ -1003,12 +1004,12 @@ export default function NoteEditor({
             aria-label={t("notes.editor.noteTitle")}
           />
           <div className="mt-3 flex flex-wrap items-center gap-2 [&>*]:max-w-full">
-            <NoteParticipants
-              noteId={note.id}
-              participants={parsedParticipants}
-              dateLabel={shortDate || undefined}
-              dateTitle={noteDate}
-            />
+            {shortDate && (
+              <span className={cn(NOTE_META_CHIP_CLASS, "cursor-default")} title={noteDate}>
+                <Calendar size={14} className="shrink-0 text-foreground/60" />
+                <span>{shortDate}</span>
+              </span>
+            )}
             {calendarEventName && (
               <span className={cn(NOTE_META_CHIP_CLASS, "cursor-default")}>
                 <LinkIcon size={14} className="shrink-0 text-foreground/60" />

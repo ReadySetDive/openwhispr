@@ -8,7 +8,6 @@ import {
   ShieldCheck,
   HelpCircle,
   UserCircle,
-  UserPlus,
   X,
   Zap,
 } from "./icons";
@@ -34,7 +33,6 @@ interface ControlPanelSidebarProps {
   onViewChange: (view: ControlPanelView) => void;
   onOpenSettings: (section?: string) => void;
   onOpenReferrals?: () => void;
-  onInviteTeam?: () => void;
   onUpgrade?: () => void;
   isOverLimit?: boolean;
   userName?: string | null;
@@ -50,7 +48,6 @@ export default function ControlPanelSidebar({
   onViewChange,
   onOpenSettings,
   onOpenReferrals,
-  onInviteTeam,
   onUpgrade,
   isOverLimit,
   userName,
@@ -184,17 +181,6 @@ export default function ControlPanelSidebar({
       )}
 
       <div className="px-2 pb-2 space-y-0.5">
-        {onInviteTeam && (
-          <button
-            onClick={onInviteTeam}
-            aria-label={t("sidebar.inviteTeam")}
-            className={rowButtonClass}
-          >
-            <UserPlus size={16} className={rowIconClass} />
-            <span className={rowLabelClass}>{t("sidebar.inviteTeam")}</span>
-          </button>
-        )}
-
         {isSignedIn && onOpenReferrals && (
           <button
             onClick={onOpenReferrals}
