@@ -2096,7 +2096,7 @@
       "enableTextCleanupDescription": "Use AI to remove filler words, fix grammar, and polish punctuation",
       "modes": {
         "openwhispr": "localwhispr Cloud",
-        "providers": "Cloud Providers",
+        "providers": "API",
         "local": "Local",
         "selfHosted": "Self-Hosted",
         "enterprise": "Enterprise",
@@ -2119,7 +2119,7 @@
           "title": "Switched to Custom Setup"
         },
         "switchedProviders": {
-          "title": "Cloud Providers",
+          "title": "API",
           "description": "Using your own API keys."
         },
         "switchedLocal": {
@@ -2516,7 +2516,7 @@
       "description": "Choose how localwhispr transcribes your voice",
       "modes": {
         "openwhispr": "localwhispr Cloud",
-        "providers": "Cloud Providers",
+        "providers": "API",
         "local": "Local",
         "selfHosted": "Self-Hosted",
         "openwhisprDesc": "Reliable accuracy. No setup needed.",
@@ -2539,7 +2539,7 @@
           "title": "Switched to Custom Setup"
         },
         "switchedProviders": {
-          "title": "Cloud Providers",
+          "title": "API",
           "description": "Using your own API keys."
         },
         "switchedLocal": {
@@ -3921,7 +3921,7 @@
       "systemPromptPlaceholder": "Enter custom system prompt...",
       "modes": {
         "openwhispr": "localwhispr Cloud",
-        "providers": "Cloud Providers",
+        "providers": "API",
         "local": "Local",
         "selfHosted": "Self-Hosted",
         "enterprise": "Enterprise",

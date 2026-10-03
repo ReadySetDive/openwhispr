@@ -81,20 +81,6 @@ export default function InferenceConfigEditor({
     (
       [
         {
-          id: "openwhispr",
-          label: t(`${prefix}.openwhispr`),
-          description: t(`${prefix}.openwhisprDesc`),
-          icon: <Cloud className="w-4 h-4" />,
-          disabled: !isSignedIn,
-          badge: !isSignedIn ? t("common.freeAccountRequired") : undefined,
-        },
-        {
-          id: "providers",
-          label: t(`${prefix}.providers`),
-          description: t(`${prefix}.providersDesc`),
-          icon: <Key className="w-4 h-4" />,
-        },
-        {
           id: "local",
           label: t(`${prefix}.local`),
           description: t(`${prefix}.localDesc`),
@@ -107,10 +93,10 @@ export default function InferenceConfigEditor({
           icon: <Network className="w-4 h-4" />,
         },
         {
-          id: "enterprise",
-          label: t(`${prefix}.enterprise`),
-          description: t(`${prefix}.enterpriseDesc`),
-          icon: <Building2 className="w-4 h-4" />,
+          id: "providers",
+          label: t(`${prefix}.providers`),
+          description: t(`${prefix}.providersDesc`),
+          icon: <Key className="w-4 h-4" />,
         },
       ] as InferenceModeOption[]
     ).filter((mode) => !allowedModes || allowedModes.includes(mode.id)),
