@@ -7,7 +7,13 @@ import { RefreshCw, Mic } from "../icons";
 import { isBuiltInMicrophone } from "../../utils/audioDeviceUtils";
 import { resolveSystemDefaultMicDevice } from "../../helpers/microphoneSelection";
 import { resolveMicDeviceSelection } from "../../helpers/micDeviceSelection";
-import { MIC_WARM_HOLD_CHOICES, PRE_ROLL_BUFFER_CHOICES } from "../../stores/settingsStore";
+import {
+  MIC_WARM_HOLD_CHOICES,
+  PRE_ROLL_BUFFER_MIN_MS,
+  PRE_ROLL_BUFFER_MAX_MS,
+  PRE_ROLL_BUFFER_STEP_MS,
+} from "../../stores/settingsStore";
+import { Slider } from "./slider";
 
 interface AudioDevice {
   kind: "audioinput";
@@ -233,21 +239,20 @@ export const MicrophoneSettings: React.FC<MicrophoneSettingsProps> = ({
         label={t("microphoneSettings.preRoll.label")}
         description={t("microphoneSettings.preRoll.description")}
       >
-        <Select
-          value={String(preRollBufferMs)}
-          onValueChange={(value) => onPreRollBufferMsChange(Number(value))}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PRE_ROLL_BUFFER_CHOICES.map((ms) => (
-              <SelectItem key={ms} value={String(ms)}>
-                {t(`microphoneSettings.preRoll.options.${ms}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-3 w-56">
+          <Slider
+            min={PRE_ROLL_BUFFER_MIN_MS}
+            max={PRE_ROLL_BUFFER_MAX_MS}
+            step={PRE_ROLL_BUFFER_STEP_MS}
+            value={preRollBufferMs}
+            onChange={onPreRollBufferMsChange}
+            aria-label={t("microphoneSettings.preRoll.label")}
+            className="flex-1"
+          />
+          <span className="w-16 text-right text-xs font-mono font-medium text-foreground">
+            {preRollBufferMs === 0 ? t("microphoneSettings.preRoll.options.0", "Off") : `${preRollBufferMs} ms`}
+          </span>
+        </div>
       </SettingsRow>
       {preRollBufferMs > 0 && (
         <p className="text-xs text-muted-foreground">

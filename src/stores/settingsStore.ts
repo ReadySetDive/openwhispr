@@ -219,10 +219,14 @@ function snapMicWarmHold(value: number): number {
   return (MIC_WARM_HOLD_CHOICES as readonly number[]).includes(value) ? value : 0;
 }
 
-export const PRE_ROLL_BUFFER_CHOICES = [0, 250, 500, 1000] as const;
+export const PRE_ROLL_BUFFER_MIN_MS = 0;
+export const PRE_ROLL_BUFFER_MAX_MS = 1000;
+export const PRE_ROLL_BUFFER_STEP_MS = 50;
 
 function snapPreRollBuffer(value: number): number {
-  return (PRE_ROLL_BUFFER_CHOICES as readonly number[]).includes(value) ? value : 0;
+  if (typeof value !== "number" || Number.isNaN(value) || value <= 0) return 0;
+  const clamped = Math.max(PRE_ROLL_BUFFER_MIN_MS, Math.min(PRE_ROLL_BUFFER_MAX_MS, value));
+  return Math.round(clamped / PRE_ROLL_BUFFER_STEP_MS) * PRE_ROLL_BUFFER_STEP_MS;
 }
 
 function readStringArray(key: string, fallback: string[]): string[] {
