@@ -17,10 +17,14 @@ const COVERAGE_TOLERANCE_MS = 100;
 export class PcmTap {
   constructor(
     workletUrl,
-    { maxSamples = SAMPLE_RATE * MAX_SECONDS, now = () => performance.now() } = {}
+    {
+      maxSamples = SAMPLE_RATE * MAX_SECONDS,
+      now = () => performance.now(),
+      initialChunks = [],
+    } = {}
   ) {
-    this._chunks = [];
-    this._samples = 0;
+    this._chunks = initialChunks ? [...initialChunks] : [];
+    this._samples = this._chunks.reduce((acc, c) => acc + c.length, 0);
     this._maxSamples = maxSamples;
     this._now = now;
     this._attachedAt = null;

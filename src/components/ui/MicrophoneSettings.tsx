@@ -7,7 +7,7 @@ import { RefreshCw, Mic } from "../icons";
 import { isBuiltInMicrophone } from "../../utils/audioDeviceUtils";
 import { resolveSystemDefaultMicDevice } from "../../helpers/microphoneSelection";
 import { resolveMicDeviceSelection } from "../../helpers/micDeviceSelection";
-import { MIC_WARM_HOLD_CHOICES } from "../../stores/settingsStore";
+import { MIC_WARM_HOLD_CHOICES, PRE_ROLL_BUFFER_CHOICES } from "../../stores/settingsStore";
 
 interface AudioDevice {
   kind: "audioinput";
@@ -21,9 +21,11 @@ interface MicrophoneSettingsProps {
   selectedMicDeviceId: string;
   selectedMicDeviceLabel: string;
   micWarmHoldSeconds: number;
+  preRollBufferMs: number;
   onSelectionModeChange: (mode: "system" | "built-in" | "specific") => void;
   onDeviceSelect: (deviceId: string, label: string) => void;
   onMicWarmHoldSecondsChange: (seconds: number) => void;
+  onPreRollBufferMsChange: (ms: number) => void;
 }
 
 export const MicrophoneSettings: React.FC<MicrophoneSettingsProps> = ({
@@ -31,9 +33,11 @@ export const MicrophoneSettings: React.FC<MicrophoneSettingsProps> = ({
   selectedMicDeviceId,
   selectedMicDeviceLabel,
   micWarmHoldSeconds,
+  preRollBufferMs,
   onSelectionModeChange,
   onDeviceSelect,
   onMicWarmHoldSecondsChange,
+  onPreRollBufferMsChange,
 }) => {
   const { t } = useTranslation();
   const [devices, setDevices] = useState<AudioDevice[]>([]);
@@ -222,6 +226,32 @@ export const MicrophoneSettings: React.FC<MicrophoneSettingsProps> = ({
       {micWarmHoldSeconds > 0 && (
         <p className="text-xs text-muted-foreground">
           {t("microphoneSettings.warmHold.privacyNote")}
+        </p>
+      )}
+
+      <SettingsRow
+        label={t("microphoneSettings.preRoll.label")}
+        description={t("microphoneSettings.preRoll.description")}
+      >
+        <Select
+          value={String(preRollBufferMs)}
+          onValueChange={(value) => onPreRollBufferMsChange(Number(value))}
+        >
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PRE_ROLL_BUFFER_CHOICES.map((ms) => (
+              <SelectItem key={ms} value={String(ms)}>
+                {t(`microphoneSettings.preRoll.options.${ms}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </SettingsRow>
+      {preRollBufferMs > 0 && (
+        <p className="text-xs text-muted-foreground">
+          {t("microphoneSettings.preRoll.privacyNote")}
         </p>
       )}
     </div>

@@ -27,6 +27,7 @@ import {
 } from "./preparedMicCapture";
 import { MicStreamHold } from "./micStreamHold";
 import { PcmTap } from "./pcmTap";
+import { RollingPreRollBuffer } from "./rollingPreRollBuffer";
 import { ActiveMicRecoveryController } from "./activeMicRecovery";
 import { followsSystemDefaultMic } from "./micSelectionRecovery";
 import { isCacheableMicrophoneResolution, resolvePreferredMicrophone } from "./microphoneSelection";
@@ -562,7 +563,9 @@ class AudioManager {
     });
     const micSettings = getSettings();
     this._micHoldSeconds = Number(micSettings.micWarmHoldSeconds) || 0;
+    this._preRollBufferMs = Number(micSettings.preRollBufferMs) || 0;
     this._micDeviceKey = micDeviceKey(micSettings);
+    this.rollingPreRollBuffer = null;
     this.micStreamHold = new MicStreamHold({
       holdSeconds: this._micHoldSeconds,
       onHoldChange: () => this._syncMicOpenGate(),
@@ -570,7 +573,8 @@ class AudioManager {
         this.isRecording ||
         this.isStreaming ||
         this.mediaRecorder?.state === "recording" ||
-        this.preparedMicCapture.active,
+        this.preparedMicCapture.active ||
+        Boolean(this._preRollBufferMs > 0 && this.rollingPreRollBuffer?.active),
     });
 
     // Every window owns an AudioManager (dictation and the agent overlay), so
@@ -581,6 +585,11 @@ class AudioManager {
         this._micHoldSeconds = holdSeconds;
         this.micStreamHold.setHoldSeconds(holdSeconds);
       }
+      const preRollMs = Number(state.preRollBufferMs) || 0;
+      if (preRollMs !== this._preRollBufferMs) {
+        this._preRollBufferMs = preRollMs;
+        this._syncPreRollBuffer();
+      }
       const deviceKey = micDeviceKey(state);
       if (deviceKey !== this._micDeviceKey) {
         this._micDeviceKey = deviceKey;
@@ -589,6 +598,10 @@ class AudioManager {
         this._micWarmedAt = 0;
         this.cancelPreparedMicCapture();
         this.micStreamHold.drop();
+        this.rollingPreRollBuffer?.stop();
+        if (this._preRollBufferMs > 0) {
+          void this._startRollingPreRoll();
+        }
       }
     });
 
@@ -1149,21 +1162,27 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     ) {
       return null;
     }
+    const preRollChunks = this.rollingPreRollBuffer?.active
+      ? this.rollingPreRollBuffer.takePreRoll()
+      : [];
     try {
       const prepared = await this.preparedMicCapture.prepare(async () => {
         // Built before the mic opens so its graph is rendering by the time the
         // pre-roll recorder starts; a tap attached later misses the first frames.
-        const pcmTap = this._startPcmTap();
+        const pcmTap = this._startPcmTap(preRollChunks);
         try {
           const constraints = await this.getAudioConstraints();
           const stream = await this._acquireCaptureStream(constraints);
+          const preRollMs = preRollChunks.length > 0
+            ? Math.round((preRollChunks.reduce((acc, c) => acc + c.length, 0) / 16000) * 1000)
+            : 0;
           const value = {
             stream,
             constraints,
             recorder: null,
             chunks: [],
             pcmTap: null,
-            startedAt: Date.now(),
+            startedAt: Date.now() - preRollMs,
           };
           if (!this.shouldUseStreaming()) this._startPreRollRecorder(value, pcmTap);
           if (!value.pcmTap) pcmTap?.close();
@@ -1192,10 +1211,65 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   // setUserRecording instead. Without this the device-global macOS/Linux mic
   // signal reports our own capture as a meeting.
   _syncMicOpenGate() {
-    const open = this.micStreamHold.active || this.preparedMicCapture.active;
+    const open =
+      this.micStreamHold.active ||
+      this.preparedMicCapture.active ||
+      Boolean(this._preRollBufferMs > 0 && this.rollingPreRollBuffer?.active);
     if (open === this._micOpenReported) return;
     this._micOpenReported = open;
     window.electronAPI?.micWarmHoldChanged?.(open);
+  }
+
+  initRollingPreRoll() {
+    if (this._preRollBufferMs > 0) {
+      void this._startRollingPreRoll();
+    }
+  }
+
+  _syncPreRollBuffer() {
+    if (this._preRollBufferMs > 0) {
+      void this._startRollingPreRoll();
+    } else {
+      this._stopRollingPreRoll();
+    }
+  }
+
+  async _startRollingPreRoll() {
+    if (this._preRollBufferMs <= 0) return;
+    if (this.isRecording || this.isProcessing) return;
+    if (!this.isRecordingAllowedByPolicy()) return;
+
+    if (this.rollingPreRollBuffer?.active) {
+      this.rollingPreRollBuffer.setDurationMs(this._preRollBufferMs);
+      this.rollingPreRollBuffer.resume();
+      return;
+    }
+
+    try {
+      const constraints = await this.getAudioConstraints();
+      const micStream = await this._acquireCaptureStream(constraints);
+      if (!this.rollingPreRollBuffer) {
+        this.rollingPreRollBuffer = new RollingPreRollBuffer({
+          sampleRate: 16000,
+          maxDurationMs: this._preRollBufferMs,
+          getWorkletBlobUrl: () => this.getWorkletBlobUrl(),
+          onActiveChange: () => this._syncMicOpenGate(),
+        });
+      } else {
+        this.rollingPreRollBuffer.setDurationMs(this._preRollBufferMs);
+      }
+      await this.rollingPreRollBuffer.start(micStream);
+      this._syncMicOpenGate();
+    } catch (err) {
+      logger.debug("Rolling pre-roll start failed", { error: err.message }, "audio");
+    }
+  }
+
+  _stopRollingPreRoll() {
+    if (this.rollingPreRollBuffer) {
+      this.rollingPreRollBuffer.stop();
+      this._syncMicOpenGate();
+    }
   }
 
   _disposePrepared(prepared) {
@@ -1225,7 +1299,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   // Offline local engines decode a renderer-captured 16 kHz WAV as-is, so the
   // batch recorder gets a PCM shadow (PcmTap). Online models commit their own
   // stream and every cloud lane wants the smaller WebM, so those get none.
-  _startPcmTap() {
+  _startPcmTap(initialChunks = []) {
     const { useLocalWhisper, localTranscriptionProvider, parakeetModel } = getSettings();
     const offlineLocal =
       useLocalWhisper &&
@@ -1233,7 +1307,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       !(localTranscriptionProvider === "nvidia" && isOnlineParakeetModel(parakeetModel));
     if (!offlineLocal) return null;
     try {
-      return new PcmTap(this.getWorkletBlobUrl());
+      return new PcmTap(this.getWorkletBlobUrl(), { initialChunks });
     } catch (e) {
       logger.debug("PCM tap unavailable", { error: e.message }, "audio");
       return null;
@@ -1379,8 +1453,12 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       prepared = forceDefaultMic ? null : await this.preparedMicCapture.take();
       const constraints =
         prepared?.constraints ?? (await this.getAudioConstraints(forceDefaultMic));
+      const directPreRollChunks =
+        !prepared && this.rollingPreRollBuffer?.active
+          ? this.rollingPreRollBuffer.takePreRoll()
+          : [];
       // Without a prepared capture the tap starts here, before the mic opens.
-      freshTap = prepared ? null : this._startPcmTap();
+      freshTap = prepared ? null : this._startPcmTap(directPreRollChunks);
       const micStream = prepared?.stream ?? (await this._acquireCaptureStream(constraints));
       const micReadyAt = performance.now();
 
@@ -1439,7 +1517,10 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       this._closeBatchPcmTap();
       this._stopRequestedDuringMicRecovery = false;
       this._cancelRequestedDuringMicRecovery = false;
-      this._receivedAudioData = false;
+      this._receivedAudioData = directPreRollChunks.length > 0;
+      if (directPreRollChunks.length > 0) {
+        this._localSpeechGateState = null;
+      }
       const preRollUsable =
         prepared?.recorder?.state === "recording" &&
         Date.now() - prepared.startedAt <= PRE_ROLL_MAX_AGE_MS;
@@ -1451,7 +1532,12 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       // starts when the prepared stream started — but only when its recorder
       // was adopted; a prepared stream without pre-roll contributes no audio
       // before this point, and back-dating would inflate durationSeconds.
-      this.recordingStartTime = preRoll ? prepared.startedAt : Date.now();
+      const directPreRollMs = directPreRollChunks.length > 0
+        ? Math.round((directPreRollChunks.reduce((acc, c) => acc + c.length, 0) / 16000) * 1000)
+        : 0;
+      this.recordingStartTime = preRoll
+        ? prepared.startedAt
+        : (directPreRollMs > 0 ? Date.now() - directPreRollMs : Date.now());
       // The tap shadows the recorder from its first frame: the pre-roll's own,
       // or the one built before the mic opened. A tap started now would miss
       // the opening, so an unusable pre-roll leaves the WebM path in charge.
@@ -1723,6 +1809,10 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       },
       processingPipeline
     );
+
+    if (this._preRollBufferMs > 0) {
+      void this._startRollingPreRoll();
+    }
   }
 
   async replaceBatchMic(replacement) {
@@ -1893,6 +1983,9 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     this._batchSegments = [];
     this.recordingStartTime = null;
     this.onStateChange?.({ isRecording: false, isProcessing: false });
+    if (this._preRollBufferMs > 0) {
+      void this._startRollingPreRoll();
+    }
   }
 
   persistDiscardedBatchRecording({
@@ -5875,6 +5968,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   }
 
   cleanup() {
+    this._stopRollingPreRoll();
     this.micRecovery.stop();
     this._unsubscribeSettings?.();
     this.preparedMicCapture.cancel();

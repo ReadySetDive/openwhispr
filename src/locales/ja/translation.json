@@ -1383,6 +1383,17 @@
         "60": "1分",
         "900": "15分"
       }
+    },
+    "preRoll": {
+      "label": "Instant Recording (Pre-Roll Buffer)",
+      "description": "Keep the microphone rolling continuously in the background so recording starts with zero delay and captures audio just before the keypress",
+      "privacyNote": "The microphone stays active in the background to eliminate hardware start delay. Your system's mic-in-use indicator will remain visible.",
+      "options": {
+        "0": "Off",
+        "250": "250 ms",
+        "500": "500 ms (Recommended)",
+        "1000": "1.0 second"
+      }
     }
   },
   "pasteToolsInfo": {

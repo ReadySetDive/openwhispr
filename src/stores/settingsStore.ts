@@ -219,6 +219,12 @@ function snapMicWarmHold(value: number): number {
   return (MIC_WARM_HOLD_CHOICES as readonly number[]).includes(value) ? value : 0;
 }
 
+export const PRE_ROLL_BUFFER_CHOICES = [0, 250, 500, 1000] as const;
+
+function snapPreRollBuffer(value: number): number {
+  return (PRE_ROLL_BUFFER_CHOICES as readonly number[]).includes(value) ? value : 0;
+}
+
 function readStringArray(key: string, fallback: string[]): string[] {
   if (!isBrowser) return fallback;
   const stored = localStorage.getItem(key);
@@ -325,6 +331,7 @@ const ARRAY_SETTINGS = new Set([
 
 const NUMERIC_SETTINGS = new Set([
   "micWarmHoldSeconds",
+  "preRollBufferMs",
   "audioRetentionDays",
   "transcriptRetentionDays",
   "whisperVadThreshold",
@@ -1194,6 +1201,7 @@ export interface SettingsState
   setMicrophoneSelectionMode: (mode: MicrophoneSelectionMode) => void;
   setSelectedMicDevice: (deviceId: string, label: string) => void;
   setMicWarmHoldSeconds: (seconds: number) => void;
+  setPreRollBufferMs: (ms: number) => void;
 
   setTheme: (value: "light" | "dark" | "auto") => void;
   setCloudBackupEnabled: (value: boolean) => void;
@@ -1611,6 +1619,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   selectedMicDeviceId: readString("selectedMicDeviceId", ""),
   selectedMicDeviceLabel: readString("selectedMicDeviceLabel", ""),
   micWarmHoldSeconds: snapMicWarmHold(readNumber("micWarmHoldSeconds", 0)),
+  preRollBufferMs: snapPreRollBuffer(readNumber("preRollBufferMs", 0)),
 
   theme: (() => {
     const v = readString("theme", "auto");
@@ -2381,6 +2390,11 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     const snapped = snapMicWarmHold(value);
     if (isBrowser) localStorage.setItem("micWarmHoldSeconds", String(snapped));
     set({ micWarmHoldSeconds: snapped });
+  },
+  setPreRollBufferMs: (value: number) => {
+    const snapped = snapPreRollBuffer(value);
+    if (isBrowser) localStorage.setItem("preRollBufferMs", String(snapped));
+    set({ preRollBufferMs: snapped });
   },
   setAudioRetentionDays: createNumberSetter("audioRetentionDays"),
   setTranscriptRetentionDays: createNumberSetter("transcriptRetentionDays"),
@@ -3745,6 +3759,8 @@ export async function initializeSettings(): Promise<void> {
         // Same whitelist as the setter — a hand-edited localStorage value
         // synced from another window must not exceed the offered durations.
         value = snapMicWarmHold(parsed);
+      } else if (key === "preRollBufferMs") {
+        value = snapPreRollBuffer(parsed);
       } else {
         value = parsed;
       }

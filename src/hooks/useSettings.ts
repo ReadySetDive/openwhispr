@@ -85,6 +85,7 @@ export interface MicrophoneSettings {
   selectedMicDeviceId: string;
   selectedMicDeviceLabel: string;
   micWarmHoldSeconds: number;
+  preRollBufferMs: number;
 }
 
 export interface ApiKeySettings {
@@ -410,10 +411,12 @@ function useSettingsInternal() {
     selectedMicDeviceId: store.selectedMicDeviceId,
     selectedMicDeviceLabel: store.selectedMicDeviceLabel,
     micWarmHoldSeconds: store.micWarmHoldSeconds,
+    preRollBufferMs: store.preRollBufferMs,
     setMicrophoneSelectionMode: store.setMicrophoneSelectionMode,
     setPreferBuiltInMic: store.setPreferBuiltInMic,
     setSelectedMicDevice: store.setSelectedMicDevice,
     setMicWarmHoldSeconds: store.setMicWarmHoldSeconds,
+    setPreRollBufferMs: store.setPreRollBufferMs,
     autoLearnCorrections,
     setAutoLearnCorrections,
     showTranscriptionPreview: store.showTranscriptionPreview,

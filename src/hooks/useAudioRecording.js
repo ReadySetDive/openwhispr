@@ -342,6 +342,9 @@ export const useAudioRecording = (toast, options = {}) => {
     // would otherwise wait on the device lookup before the mic can open.
     void audioManagerRef.current.cacheMicrophoneDeviceId?.();
 
+    // Start background rolling pre-roll buffer if enabled
+    void audioManagerRef.current.initRollingPreRoll?.();
+
     // Reset stale main-process state after a renderer reload or crash recovery.
     reportLifecycle("idle");
 
