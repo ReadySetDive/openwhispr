@@ -319,6 +319,7 @@ const WindowsLoopbackAudioManager = require("./src/helpers/windowsLoopbackAudioM
 const MeetingAecManager = require("./src/helpers/meetingAecManager");
 const MeetingDetectionEngine = require("./src/helpers/meetingDetectionEngine");
 const { applyOpenWhisprOriginHeader } = require("./src/helpers/sessionHeaders");
+const { initNetworkFilter } = require("./src/helpers/networkFilter");
 const { i18nMain, changeLanguage } = require("./src/helpers/i18nMain");
 const { ensureYdotool } = require("./src/helpers/ensureYdotool");
 const sidecarRegistry = require("./src/helpers/sidecarRegistry");
@@ -891,34 +892,9 @@ async function exchangeSignedTokenForRawBearer(signedToken) {
   }
 }
 
-// One-time bridge for users upgrading from a build that injected the session
-// cookie into Electron's jar: exchange the existing cookie for a raw bearer
-// token, store it, and remove the cookie. Non-fatal — failures fall through
-// to the normal sign-in flow.
+// Cookie migration disabled in offline mode
 async function migrateCookieToBearerToken() {
-  const tokenStore = require("./src/helpers/tokenStore");
-  if (tokenStore.get()) return;
-
-  const cookieName = getOauthCookieName();
-  const authUrl = resolveAuthUrl();
-
-  try {
-    const cookies = await session.defaultSession.cookies.get({ url: authUrl, name: cookieName });
-    if (!cookies.length) return;
-
-    const rawToken = await exchangeSignedTokenForRawBearer(cookies[0].value);
-    if (!rawToken) return;
-
-    tokenStore.set(rawToken);
-    await session.defaultSession.cookies.remove(authUrl, cookieName);
-    if (debugLogger) debugLogger.debug("Migrated cookie to bearer token");
-  } catch (err) {
-    if (debugLogger) {
-      debugLogger.warn("Cookie→bearer token migration failed (non-fatal)", {
-        error: err?.message,
-      });
-    }
-  }
+  return;
 }
 
 // Persist the bearer token and reload the control panel so the renderer's
@@ -1008,64 +984,8 @@ function writeCorsHeaders(res) {
 }
 
 function startAuthBridgeServer() {
-  if (APP_CHANNEL !== "development" || authBridgeServer) {
-    return;
-  }
-
-  authBridgeServer = http.createServer(async (req, res) => {
-    writeCorsHeaders(res);
-    if (req.method === "OPTIONS") {
-      res.writeHead(204);
-      res.end();
-      return;
-    }
-
-    const requestUrl = new URL(req.url || "/", `http://${AUTH_BRIDGE_HOST}:${AUTH_BRIDGE_PORT}`);
-    if (requestUrl.pathname !== AUTH_BRIDGE_PATH) {
-      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-      res.end("Not found");
-      return;
-    }
-
-    let token = requestUrl.searchParams.get("bearer_token") || requestUrl.searchParams.get("token");
-    if (!token && req.method === "POST") {
-      try {
-        const body = await parseJsonBody(req);
-        token = body?.bearer_token || body?.token || null;
-      } catch (error) {
-        res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
-        res.end(error.message || "Invalid request");
-        return;
-      }
-    }
-
-    if (!token) {
-      res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
-      res.end("Missing token");
-      return;
-    }
-
-    void applySessionTokenAndRefresh(token);
-
-    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    res.end(
-      "<html><body><h3>OpenWhispr sign-in complete.</h3><p>You can close this tab.</p></body></html>"
-    );
-  });
-
-  authBridgeServer.on("error", (error) => {
-    if (debugLogger) {
-      debugLogger.error("OAuth auth bridge server failed:", error);
-    }
-  });
-
-  authBridgeServer.listen(AUTH_BRIDGE_PORT, AUTH_BRIDGE_HOST, () => {
-    if (debugLogger) {
-      debugLogger.debug("OAuth auth bridge server started", {
-        url: `http://${AUTH_BRIDGE_HOST}:${AUTH_BRIDGE_PORT}${AUTH_BRIDGE_PATH}`,
-      });
-    }
-  });
+  // Disabled: No local auth bridge or OAuth listeners in offline mode
+  return;
 }
 
 // Main application startup
@@ -1081,17 +1001,15 @@ async function startApp() {
   // failure before the whisper pre-warm below resolves its GPU backend.
   resetWhisperGpuFailureOnUpgrade(environmentManager);
   registerSidecars();
-  startAuthBridgeServer();
+
+  // Initialize network filter (The Iron Dome) to block all outbound data except model downloads
+  initNetworkFilter(app, session, debugLogger);
 
   cliBridge = new CliBridge(ipcHandlers);
   cliBridge.start().catch((err) => {
     debugLogger.error("CLI bridge failed to start", { error: err.message });
     cliBridge = null;
   });
-
-  await migrateCookieToBearerToken();
-
-  applyOpenWhisprOriginHeader(session.defaultSession);
 
   await windowManager.setActivationModeCache(environmentManager.getActivationMode());
   windowManager.setFloatingIconAutoHide(environmentManager.getFloatingIconAutoHide());
@@ -1401,8 +1319,8 @@ async function startApp() {
   windowManager.onDictationStateChanged = () => trayManager.updateTrayMenu();
   trayManager.setCreateControlPanelCallback(() => windowManager.createControlPanelWindow());
   await trayManager.createTray();
-
-  updateManager.checkForUpdatesOnStartup();
+  // Offline mode: Automatic background update checks disabled
+  // updateManager.checkForUpdatesOnStartup();
 
   if (process.platform === "darwin") {
     const { isGlobeLikeHotkey, isMouseButtonHotkey } = require("./src/helpers/hotkeyManager");
