@@ -562,7 +562,7 @@ class ReasoningService extends BaseReasoningService {
   }
 
   private async *processTextStreamingRaw(
-    messages: Array<{ role: string; content: string }>,
+    messages: Array<{ role: string; content: string | Array<Record<string, unknown>> }>,
     model: string,
     provider: string,
     config: ReasoningConfig & { systemPrompt: string },
@@ -615,11 +615,30 @@ class ReasoningService extends BaseReasoningService {
       );
     }
 
-    if (abortController.signal.aborted) return;
+    const formattedMessages = messages.map((m) => {
+      if (Array.isArray(m.content)) {
+        return {
+          role: m.role,
+          content: m.content.map((part) => {
+            if (part && typeof part === "object" && (part as any).type === "image") {
+              const imgPart = part as { type: "image"; image: string; mediaType?: string };
+              return {
+                type: "image_url",
+                image_url: {
+                  url: `data:${imgPart.mediaType || "image/png"};base64,${imgPart.image}`,
+                },
+              };
+            }
+            return part;
+          }),
+        };
+      }
+      return m;
+    });
 
     const requestBody: Record<string, unknown> = {
       model,
-      messages,
+      messages: formattedMessages,
       stream: true,
     };
 
@@ -793,10 +812,9 @@ class ReasoningService extends BaseReasoningService {
     const isLanChat = route.kind === "self-hosted";
 
     if ((isLocalProvider || isLanChat) && !tools) {
-      // Attachments are never routed to local/LAN providers, so content is string-only here.
       try {
         const contentGen = this.processTextStreamingRaw(
-          messages as Array<{ role: string; content: string }>,
+          messages,
           model,
           provider,
           config,
@@ -889,10 +907,29 @@ class ReasoningService extends BaseReasoningService {
 
     const result = streamText({
       model: aiModel,
-      messages: messages.map((m) => ({
-        role: m.role as "system" | "user" | "assistant",
-        content: m.content,
-      })) as import("ai").ModelMessage[],
+      messages: messages.map((m) => {
+        if (Array.isArray(m.content)) {
+          return {
+            role: m.role as "system" | "user" | "assistant",
+            content: m.content.map((part) => {
+              if (part && typeof part === "object" && (part as any).type === "image") {
+                const imgPart = part as { type: "image"; image: string; mediaType?: string; mimeType?: string };
+                return {
+                  type: "image",
+                  image: imgPart.image.startsWith("data:")
+                    ? imgPart.image
+                    : `data:${imgPart.mediaType || imgPart.mimeType || "image/png"};base64,${imgPart.image}`,
+                };
+              }
+              return part;
+            }),
+          };
+        }
+        return {
+          role: m.role as "system" | "user" | "assistant",
+          content: m.content,
+        };
+      }) as import("ai").ModelMessage[],
       tools: tools || undefined,
       stopWhen: stepCountIs(tools ? ReasoningService.MAX_TOOL_STEPS : 1),
       abortSignal: abortController.signal,

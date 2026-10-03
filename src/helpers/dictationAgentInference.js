@@ -6,7 +6,7 @@ import {
   resolveModeProvider,
   resolveModeReachability,
 } from "./dictationRouting.js";
-import { getCloudModel, isProviderValidForMode } from "../models/ModelRegistry";
+import { getCloudModel, isProviderValidForMode, modelSupportsVision } from "../models/ModelRegistry";
 import { getManagedScopeResolution } from "../stores/enterpriseIdentityStore";
 import { selectIsCloudDictationAgentMode, selectResolvedLLMConfig } from "../stores/settingsStore";
 import { inheritsFallbackEndpoint } from "./reasoningRouting.js";
@@ -148,6 +148,9 @@ export function resolveDictationAgentVisionInference(settings, { isSignedIn = fa
  *   inferenceScope?: "chatIntelligence" | "dictationAgent",
  *   hasScreenContext?: boolean,
  *   isProviderImageWired?: (providerId: string | undefined) => boolean,
+ *   overrideModel?: string,
+ *   overrideProvider?: string,
+ *   overrideMode?: string,
  * }} [options]
  * @returns {{
  *   config: import("../stores/settingsStore").ResolvedLLMConfig,
@@ -160,6 +163,9 @@ export function resolveChatStreamingInference(
     inferenceScope = "chatIntelligence",
     hasScreenContext = false,
     isProviderImageWired = () => false,
+    overrideModel,
+    overrideProvider,
+    overrideMode,
   } = {}
 ) {
   const onAgentScope =
@@ -167,10 +173,16 @@ export function resolveChatStreamingInference(
     resolveDictationAgentInference(settings, {
       isCloudAgent: selectIsCloudDictationAgentMode(settings),
     }).reachable;
-  const config = selectResolvedLLMConfig(
+  const baseConfig = selectResolvedLLMConfig(
     settings,
     onAgentScope ? "dictationAgent" : "chatIntelligence"
   );
+  const config = {
+    ...baseConfig,
+    ...(overrideMode ? { mode: overrideMode } : {}),
+    ...(overrideProvider ? { provider: overrideProvider } : {}),
+    ...(overrideModel ? { model: overrideModel } : {}),
+  };
   const isCloud = !!settings.isSignedIn && config.mode === "openwhispr";
   const vision =
     onAgentScope && hasScreenContext
@@ -185,7 +197,7 @@ export function resolveChatStreamingInference(
       resolveModeProvider({ isCloud, mode: config.mode, provider: config.provider })
     ),
     isCloudAgent: isCloud,
-    baseModelSupportsVision: !!getCloudModel(config.model, config.provider)?.supportsVision,
+    baseModelSupportsVision: !!modelSupportsVision(config.model, config.provider),
   });
   if (!useVisionOverride) return { config, attachScreenContext: attach };
   return {

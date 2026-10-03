@@ -147,32 +147,48 @@ class ModelManager {
 
       let downloadedStates = [];
 
-      // A download can finish between checking the final file and reading the
-      // in-memory active state. Retry when that lifecycle changes so callers
-      // never receive the impossible "not downloaded and not downloading" gap.
       for (let attempt = 0; attempt < 3; attempt += 1) {
         const lifecycleVersion = this.downloadLifecycleVersion;
         downloadedStates = await Promise.all(
-          modelEntries.map(({ modelPath }) => this.checkModelValid(modelPath))
+          modelEntries.map(async ({ modelPath }) => {
+            return await this.checkModelValid(modelPath);
+          })
         );
         if (lifecycleVersion === this.downloadLifecycleVersion) break;
       }
+
+      const visionDownloadedStates = await Promise.all(
+        modelEntries.map(async ({ model }) => {
+          if (!this.modelHasMmproj(model)) return false;
+          const mmprojPath = path.join(this.modelsDir, model.mmprojFileName);
+          return await this.checkModelValid(mmprojPath);
+        })
+      );
 
       // Read volatile download state only after all asynchronous filesystem checks
       // finish so every model belongs to the same main-process snapshot.
       return modelEntries.map(({ model, provider, modelPath }, index) => {
         const progress = this.downloadProgress.get(model.id);
+        const visionKey = `${model.id}:vision`;
+        const visionProgress = this.downloadProgress.get(visionKey);
         const isDownloaded = downloadedStates[index];
+        const isVisionDownloaded = visionDownloadedStates[index];
+        const hasVisionAddon = this.modelHasMmproj(model);
+        const isDownloading = this.activeDownloads.has(model.id);
+        const isDownloadingVision = this.activeDownloads.has(visionKey);
 
         return {
           ...model,
           providerId: provider.id,
           providerName: provider.name,
           isDownloaded,
-          isDownloading: this.activeDownloads.has(model.id),
-          downloadProgress: progress?.progress || 0,
-          downloadedSize: progress?.downloadedSize || 0,
-          totalSize: progress?.totalSize || 0,
+          hasVisionAddon,
+          isVisionDownloaded,
+          isDownloading,
+          isDownloadingVision,
+          downloadProgress: isDownloadingVision ? (visionProgress?.progress || 0) : (progress?.progress || 0),
+          downloadedSize: isDownloadingVision ? (visionProgress?.downloadedSize || 0) : (progress?.downloadedSize || 0),
+          totalSize: isDownloadingVision ? (visionProgress?.totalSize || 0) : (progress?.totalSize || 0),
           path: isDownloaded ? modelPath : null,
         };
       });
@@ -238,6 +254,8 @@ class ModelManager {
     const options = { ...this.serverOptions(modelInfo), ...overrides };
     const draftPath = await this.resolveDraftPath(modelInfo.model);
     if (draftPath) options.draftModelPath = draftPath;
+    const mmprojPath = await this.resolveMmprojPath(modelInfo.model);
+    if (mmprojPath) options.mmprojPath = mmprojPath;
     return options;
   }
 
@@ -352,10 +370,8 @@ class ModelManager {
 
       const downloadUrl = this.getDownloadUrl(provider, model);
 
-      // With a drafter, weight progress across both files by declared bytes and
-      // clamp it so the bar never regresses across the phase boundary. Without a
-      // drafter, keep today's single-file progress exactly.
-      const combinedTotal = hasDrafter ? (model.sizeBytes || 0) + model.draftSizeBytes : 0;
+      const extraBytes = hasDrafter ? model.draftSizeBytes : 0;
+      const combinedTotal = extraBytes > 0 ? (model.sizeBytes || 0) + extraBytes : 0;
       let lastCombined = 0;
       const emitCombined = (rawCombined) => {
         let combined = Math.min(rawCombined, combinedTotal);
@@ -373,7 +389,7 @@ class ModelManager {
 
       await sharedDownloadFile(downloadUrl, modelPath, {
         signal,
-        onProgress: hasDrafter
+        onProgress: extraBytes > 0
           ? (downloadedBytes) => emitCombined(downloadedBytes)
           : (downloadedBytes, totalBytes) => {
               const progress = totalBytes > 0 ? (downloadedBytes / totalBytes) * 100 : 0;
@@ -399,6 +415,8 @@ class ModelManager {
         );
       }
 
+      let downloadedSoFar = stats.size;
+
       // Drafter is opportunistic: a failure or cancel here leaves the main model
       // fully usable, so never fail the download or delete the main file.
       if (hasDrafter) {
@@ -406,12 +424,14 @@ class ModelManager {
         try {
           await sharedDownloadFile(this.getDraftDownloadUrl(provider, model), draftPath, {
             signal,
-            onProgress: (downloadedBytes) => emitCombined(stats.size + downloadedBytes),
+            onProgress: (downloadedBytes) => emitCombined(downloadedSoFar + downloadedBytes),
           });
           const draftStats = await fsPromises.stat(draftPath);
           if (draftStats.size < MIN_FILE_SIZE) {
             await fsPromises.unlink(draftPath).catch(() => {});
             debugLogger.warn("MTP drafter file too small, keeping model without it", { modelId });
+          } else {
+            downloadedSoFar += draftStats.size;
           }
         } catch (draftError) {
           await fsPromises.unlink(draftPath).catch(() => {});
@@ -449,6 +469,117 @@ class ModelManager {
     }
   }
 
+  async downloadVisionAddon(modelId, onProgress) {
+    this.ensureInitialized();
+    const modelInfo = this.findModelById(modelId);
+    if (!modelInfo) {
+      throw new ModelNotFoundError(modelId);
+    }
+
+    const { model, provider } = modelInfo;
+    if (!this.modelHasMmproj(model)) {
+      throw new ModelError("Model does not have a vision add-on", "NO_VISION_ADDON", { modelId });
+    }
+
+    const mmprojPath = path.join(this.modelsDir, model.mmprojFileName);
+    if (await this.checkModelValid(mmprojPath)) {
+      return mmprojPath;
+    }
+
+    const visionKey = `${modelId}:vision`;
+    if (this.activeDownloads.has(visionKey)) {
+      throw new ModelError("Vision add-on is already being downloaded", "DOWNLOAD_IN_PROGRESS", { modelId });
+    }
+
+    this.activeDownloads.set(visionKey, true);
+    this.downloadLifecycleVersion += 1;
+    const { signal, abort } = createDownloadSignal();
+    this.activeRequests.set(visionKey, { abort });
+
+    try {
+      await this.ensureModelsDirExists();
+
+      const requiredBytes = model.mmprojSizeBytes || 0;
+      if (requiredBytes > 0) {
+        this.downloadReservations.set(visionKey, requiredBytes * 1.2);
+        const reservedBytes = this.getReservedDownloadBytes();
+        const spaceCheck = await checkDiskSpace(this.modelsDir, reservedBytes);
+        if (!spaceCheck.ok) {
+          throw new ModelError(
+            `Not enough disk space. Need ~${Math.round(reservedBytes / 1_000_000)}MB, only ${Math.round(spaceCheck.availableBytes / 1_000_000)}MB available.`,
+            "INSUFFICIENT_DISK_SPACE"
+          );
+        }
+      }
+
+      const downloadUrl = this.getMmprojDownloadUrl(provider, model);
+
+      await sharedDownloadFile(downloadUrl, mmprojPath, {
+        signal,
+        onProgress: (downloadedBytes, totalBytes) => {
+          const total = totalBytes || model.mmprojSizeBytes || 0;
+          const progress = total > 0 ? (downloadedBytes / total) * 100 : 0;
+          this.downloadProgress.set(visionKey, {
+            modelId: visionKey,
+            progress,
+            downloadedSize: downloadedBytes,
+            totalSize: total,
+          });
+          if (onProgress) onProgress(progress, downloadedBytes, total);
+        },
+      });
+
+      const stats = await fsPromises.stat(mmprojPath);
+      if (stats.size < MIN_FILE_SIZE) {
+        await fsPromises.unlink(mmprojPath).catch(() => {});
+        throw new ModelError(
+          "Downloaded vision add-on appears to be corrupted or incomplete",
+          "DOWNLOAD_CORRUPTED",
+          { size: stats.size, minSize: MIN_FILE_SIZE }
+        );
+      }
+
+      this.downloadLifecycleVersion += 1;
+      return mmprojPath;
+    } catch (error) {
+      if (error.isAbort) {
+        throw new ModelError("Download cancelled by user", "DOWNLOAD_CANCELLED", { modelId });
+      }
+      if (error.isHttpError) {
+        throw new ModelError(`Download failed with status ${error.statusCode}`, "DOWNLOAD_FAILED", {
+          statusCode: error.statusCode,
+        });
+      }
+      if (!(error instanceof ModelError)) {
+        throw new ModelError(`Network error: ${error.message}`, "NETWORK_ERROR", {
+          error: error.message,
+        });
+      }
+      throw error;
+    } finally {
+      if (this.activeDownloads.delete(visionKey)) {
+        this.downloadLifecycleVersion += 1;
+      }
+      this.activeRequests.delete(visionKey);
+      this.downloadProgress.delete(visionKey);
+      this.downloadReservations.delete(visionKey);
+    }
+  }
+
+  async deleteVisionAddon(modelId) {
+    this.ensureInitialized();
+    const modelInfo = this.findModelById(modelId);
+    if (!modelInfo || !this.modelHasMmproj(modelInfo.model)) return false;
+    const mmprojPath = path.join(this.modelsDir, modelInfo.model.mmprojFileName);
+    try {
+      await fsPromises.unlink(mmprojPath);
+      this.downloadLifecycleVersion += 1;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   getDownloadUrl(provider, model) {
     const baseUrl = provider.baseUrl || "https://huggingface.co";
     return `${baseUrl}/${model.hfRepo}/resolve/main/${model.fileName}`;
@@ -469,6 +600,22 @@ class ModelManager {
     if (!this.modelHasDrafter(model)) return null;
     const draftPath = path.join(this.modelsDir, model.draftFileName);
     if (await this.checkModelValid(draftPath)) return draftPath;
+    return null;
+  }
+
+  getMmprojDownloadUrl(provider, model) {
+    const baseUrl = provider.baseUrl || "https://huggingface.co";
+    return `${baseUrl}/${model.mmprojHfRepo}/resolve/main/${model.mmprojFileName}`;
+  }
+
+  modelHasMmproj(model) {
+    return Boolean(model && model.mmprojHfRepo && model.mmprojFileName && model.mmprojSizeBytes);
+  }
+
+  async resolveMmprojPath(model) {
+    if (!this.modelHasMmproj(model)) return null;
+    const mmprojPath = path.join(this.modelsDir, model.mmprojFileName);
+    if (await this.checkModelValid(mmprojPath)) return mmprojPath;
     return null;
   }
 
@@ -500,6 +647,12 @@ class ModelManager {
     if (modelInfo.model.draftFileName) {
       const draftPath = path.join(this.modelsDir, modelInfo.model.draftFileName);
       await fsPromises.unlink(draftPath).catch(() => {});
+    }
+
+    // Remove the mmproj too when present, best effort (ignore ENOENT).
+    if (modelInfo.model.mmprojFileName) {
+      const mmprojPath = path.join(this.modelsDir, modelInfo.model.mmprojFileName);
+      await fsPromises.unlink(mmprojPath).catch(() => {});
     }
   }
 

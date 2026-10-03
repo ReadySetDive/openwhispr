@@ -113,6 +113,9 @@ interface UseChatStreamingOptions {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   /** Settings scope the conversation resolves its provider and model from. */
   inferenceScope?: ChatStreamingScope;
+  overrideModel?: string;
+  overrideProvider?: string;
+  overrideMode?: string;
   /** Optional note context to prepend to the system prompt (used by embedded note chat). */
   noteContext?: string;
   /** Optional container scope applied to RAG and the search_notes tool (container overview chat). */
@@ -133,6 +136,9 @@ interface UseChatStreamingOptions {
 }
 
 export interface SendToAIOptions {
+  overrideModel?: string;
+  overrideProvider?: string;
+  overrideMode?: string;
   /** Screenshot for this message; attached only when the resolved model can see it. */
   attachment?: ChatImageAttachment;
   /** Agent-response selection attached to this request without changing chat history. */
@@ -186,6 +192,9 @@ export function useChatStreaming({
   messages,
   setMessages,
   inferenceScope = "chatIntelligence",
+  overrideModel,
+  overrideProvider,
+  overrideMode,
   noteContext: externalNoteContext,
   searchScope,
   allowConnectors = false,
@@ -199,6 +208,12 @@ export function useChatStreaming({
   const [activeToolName, setActiveToolName] = useState("");
   const mountedRef = useRef(true);
   const messagesRef = useRef<Message[]>([]);
+  const overrideModelRef = useRef(overrideModel);
+  overrideModelRef.current = overrideModel;
+  const overrideProviderRef = useRef(overrideProvider);
+  overrideProviderRef.current = overrideProvider;
+  const overrideModeRef = useRef(overrideMode);
+  overrideModeRef.current = overrideMode;
   const noteContextRef = useRef(externalNoteContext);
   noteContextRef.current = externalNoteContext;
   const searchScopeRef = useRef(searchScope);
@@ -319,11 +334,17 @@ export function useChatStreaming({
           responseAnnounced = true;
           if (!options?.suppressResponseContent) onResponseContent?.();
         };
+        const effectiveModel = options?.overrideModel ?? overrideModelRef.current;
+        const effectiveProvider = options?.overrideProvider ?? overrideProviderRef.current;
+        const effectiveMode = options?.overrideMode ?? overrideModeRef.current;
         const settings = getSettings();
         const { config: llmConfig, attachScreenContext } = resolveChatStreamingInference(settings, {
           inferenceScope,
           hasScreenContext: !!options?.attachment,
           isProviderImageWired: providerSupportsImages,
+          overrideModel: effectiveModel,
+          overrideProvider: effectiveProvider,
+          overrideMode: effectiveMode,
         });
         const requestedAttachment = attachScreenContext ? (options?.attachment ?? null) : null;
         const llmMode = llmConfig.mode || "openwhispr";

@@ -14,6 +14,7 @@ export interface Message {
   content: string;
   isStreaming: boolean;
   toolCalls?: ToolCallInfo[];
+  attachment?: ChatImageAttachment;
 }
 
 export type AgentState =

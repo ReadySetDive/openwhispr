@@ -4439,6 +4439,88 @@ class IPCHandlers {
       }
     });
 
+    ipcMain.handle("model-download-vision", async (event, modelId) => {
+      const visionKey = `${modelId}:vision`;
+      if (this.localModelDownloadStatus.has("llm", visionKey)) {
+        return {
+          success: false,
+          error: "Vision add-on is already being downloaded",
+          code: "DOWNLOAD_IN_PROGRESS",
+          details: { modelId },
+        };
+      }
+      this.localModelDownloadStatus.start("llm", visionKey);
+      try {
+        const modelManager = require("./modelManagerBridge").default;
+        const result = await modelManager.downloadVisionAddon(
+          modelId,
+          (progress, downloadedSize, totalSize) => {
+            const status = this.localModelDownloadStatus.update("llm", visionKey, {
+              phase: "downloading",
+              progress,
+              downloadedBytes: downloadedSize,
+              totalBytes: totalSize,
+              isVision: true,
+            });
+            this.windowManager.sendToControlPanel("model-download-progress", {
+              modelId,
+              type: "progress",
+              progress,
+              downloadedSize,
+              totalSize,
+              sequence: status.sequence,
+              isVision: true,
+            });
+          }
+        );
+        const status = this.localModelDownloadStatus.finish("llm", visionKey);
+        this.windowManager.sendToControlPanel("model-download-progress", {
+          modelId,
+          type: "complete",
+          progress: 100,
+          downloadedSize: status?.downloadedBytes,
+          totalSize: status?.totalBytes,
+          sequence: status?.sequence,
+          isVision: true,
+        });
+        return { success: true, path: result };
+      } catch (error) {
+        const status = this.localModelDownloadStatus.finish("llm", visionKey);
+        if (error.code !== "DOWNLOAD_IN_PROGRESS") {
+          this.windowManager.sendToControlPanel("model-download-progress", {
+            modelId,
+            type: "error",
+            error: error.message,
+            code: error.code,
+            details: error.details,
+            sequence: status?.sequence,
+            isVision: true,
+          });
+        }
+        return {
+          success: false,
+          error: error.message,
+          code: error.code,
+          details: error.details,
+        };
+      }
+    });
+
+    ipcMain.handle("model-delete-vision", async (event, modelId) => {
+      try {
+        const modelManager = require("./modelManagerBridge").default;
+        await modelManager.deleteVisionAddon(modelId);
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          error: error.message,
+          code: error.code,
+          details: error.details,
+        };
+      }
+    });
+
     ipcMain.handle("model-delete-all", async () => {
       try {
         const modelManager = require("./modelManagerBridge").default;

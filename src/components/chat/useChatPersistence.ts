@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import type { Message, ToolCallInfo } from "./types";
+import type { Message, ToolCallInfo, ChatImageAttachment } from "./types";
 import type { ContainerScope } from "../../types/chat";
 
 interface UseChatPersistenceOptions {
@@ -17,7 +17,7 @@ export interface ChatPersistence {
     scope?: ContainerScope
   ) => Promise<number>;
   loadConversation: (id: number) => Promise<void>;
-  saveUserMessage: (text: string) => Promise<void>;
+  saveUserMessage: (text: string, attachment?: ChatImageAttachment) => Promise<void>;
   saveAssistantMessage: (content: string, toolCalls?: ToolCallInfo[]) => Promise<void>;
   handleNewChat: () => void;
 }
@@ -68,20 +68,27 @@ export function useChatPersistence(options: UseChatPersistenceOptions = {}): Cha
     const loaded: Message[] = conv.messages.map((m) => {
       const parsed = m.metadata ? tryParseMetadata(m.metadata) : undefined;
       const toolCalls = parsed?.toolCalls as ToolCallInfo[] | undefined;
+      const attachment = parsed?.attachment as ChatImageAttachment | undefined;
       return {
         id: crypto.randomUUID(),
         role: m.role as Message["role"],
         content: m.content,
         isStreaming: false,
         ...(toolCalls ? { toolCalls } : {}),
+        ...(attachment ? { attachment } : {}),
       };
     });
     setMessages(loaded);
   }, []);
 
-  const saveUserMessage = useCallback(async (text: string) => {
+  const saveUserMessage = useCallback(async (text: string, attachment?: ChatImageAttachment) => {
     if (conversationIdRef.current) {
-      window.electronAPI?.addAgentMessage?.(conversationIdRef.current, "user", text);
+      window.electronAPI?.addAgentMessage?.(
+        conversationIdRef.current,
+        "user",
+        text,
+        attachment ? { attachment } : undefined
+      );
     }
   }, []);
 

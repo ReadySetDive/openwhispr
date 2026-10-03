@@ -1,4 +1,4 @@
-import { Globe, Download, Trash2, X, ExternalLink } from "../icons";
+import { Globe, Download, Trash2, X, ExternalLink, Eye } from "../icons";
 import { useTranslation } from "react-i18next";
 import { Button } from "./button";
 import { cn } from "../lib/utils";
@@ -20,6 +20,11 @@ export interface ModelCardOption {
   isDownloading?: boolean;
   isCancelling?: boolean;
   recommended?: boolean;
+  supportsVision?: boolean;
+  hasVisionAddon?: boolean;
+  isVisionDownloaded?: boolean;
+  isDownloadingVision?: boolean;
+  mmprojSize?: string;
 }
 
 const COLOR_CONFIG: Record<
@@ -55,6 +60,8 @@ interface ModelCardProps {
   onDownload?: (modelId: string) => void;
   onDelete?: (modelId: string) => void;
   onCancelDownload?: (modelId: string) => void;
+  onDownloadVision?: (modelId: string) => void;
+  onDeleteVision?: (modelId: string) => void;
 }
 
 export function ModelCard({
@@ -66,6 +73,8 @@ export function ModelCard({
   onDownload,
   onDelete,
   onCancelDownload,
+  onDownloadVision,
+  onDeleteVision,
 }: ModelCardProps) {
   const { t } = useTranslation();
   const styles = COLOR_CONFIG[colorScheme];
@@ -168,6 +177,36 @@ export function ModelCard({
           </span>
         )}
 
+        {model.supportsVision && (
+          isDownloaded ? (
+            model.isVisionDownloaded ? (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-purple-600 dark:text-purple-400 px-1.5 py-0.5 bg-purple-500/15 border border-purple-500/25 rounded-sm shrink-0">
+                <Eye size={11} />
+                Vision Active
+              </span>
+            ) : (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDownloadVision?.(model.value);
+                }}
+                disabled={model.isDownloadingVision}
+                size="sm"
+                variant="outline"
+                className="h-6 px-2 text-xs font-medium text-purple-600 dark:text-purple-400 border-purple-500/40 hover:bg-purple-500/10 shrink-0"
+                title="Download multimodal vision projector add-on"
+              >
+                <Eye size={11} className="me-1" />
+                {model.isDownloadingVision ? "Downloading Vision..." : `+ Vision Add-on (${model.mmprojSize || "991MB"})`}
+              </Button>
+            )
+          ) : (
+            <span className="text-xs font-medium text-purple-600 dark:text-purple-400 px-1.5 py-0.5 bg-purple-500/10 rounded-sm shrink-0">
+              Vision Capable
+            </span>
+          )
+        )}
+
         <div className="ms-auto flex items-center gap-1.5 shrink-0">
           {isSelected && (
             <span className="text-xs font-medium text-primary px-2 py-0.5 bg-primary/10 rounded-sm">
@@ -236,6 +275,8 @@ interface ModelCardListProps {
   onDownload?: (modelId: string) => void;
   onDelete?: (modelId: string) => void;
   onCancelDownload?: (modelId: string) => void;
+  onDownloadVision?: (modelId: string) => void;
+  onDeleteVision?: (modelId: string) => void;
 }
 
 export default function ModelCardList({
@@ -248,6 +289,8 @@ export default function ModelCardList({
   onDownload,
   onDelete,
   onCancelDownload,
+  onDownloadVision,
+  onDeleteVision,
 }: ModelCardListProps) {
   const { t } = useTranslation();
 
@@ -268,6 +311,8 @@ export default function ModelCardList({
           onDownload={onDownload}
           onDelete={onDelete}
           onCancelDownload={onCancelDownload}
+          onDownloadVision={onDownloadVision}
+          onDeleteVision={onDeleteVision}
         />
       ))}
     </div>

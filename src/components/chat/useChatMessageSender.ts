@@ -64,10 +64,11 @@ export function useChatMessageSender({
             role: "user",
             content: text,
             isStreaming: false,
+            ...(options?.attachment ? { attachment: options.attachment } : {}),
           };
 
           persistence.setMessages((messages) => [...messages, userMessage]);
-          await persistence.saveUserMessage(text);
+          await persistence.saveUserMessage(text, options?.attachment);
           await onMessagePersisted?.({
             conversationId: convId,
             text,

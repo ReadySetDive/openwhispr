@@ -5,6 +5,7 @@ import { buildLocalInferenceError } from "../../../utils/localInferenceError";
 
 export const localProvider: InferenceProvider = {
   id: "local",
+  supportsImages: true,
   async call({ text, model, agentName, config, ctx }) {
     if (typeof window === "undefined" || !window.electronAPI) {
       throw new Error("Local reasoning is not available in this environment");

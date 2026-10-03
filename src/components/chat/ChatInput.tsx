@@ -12,7 +12,7 @@ import { useVoiceDraft } from "./useVoiceDraft";
 import { Popover, PopoverAnchor, PopoverContent } from "../ui/popover";
 import SlashCommandMenu from "./SlashCommandMenu";
 import { matchSlashCommands, slashOptionId, type SlashCommand } from "./slashCommands";
-import type { AgentState } from "./types";
+import type { AgentState, ChatImageAttachment } from "./types";
 
 // Controls stay bottom-anchored so they hold the corner while the composer expands;
 // this lifts a 28px control to the center of the collapsed composer's 34px row.
@@ -21,7 +21,7 @@ const COLLAPSED_ROW_CENTER = "mb-[3px]";
 interface ChatInputProps {
   agentState: AgentState;
   partialTranscript: string;
-  onTextSubmit?: (text: string) => void;
+  onTextSubmit?: (text: string, options?: { attachment?: ChatImageAttachment }) => void;
   onCancel?: () => void;
   autoFocus?: boolean;
   placeholder?: string;
@@ -40,6 +40,8 @@ interface ChatInputProps {
   expandOnFocusSize?: "standard" | "compact";
   /** Offered in a menu while the draft is "/" plus an optional filter. */
   slashCommands?: SlashCommand[];
+  /** Whether the active model supports vision/images. */
+  supportsVision?: boolean;
 }
 
 function RecordingIndicator() {
@@ -89,10 +91,13 @@ export function ChatInput({
   expandOnFocus = false,
   expandOnFocusSize = "standard",
   slashCommands,
+  supportsVision = false,
 }: ChatInputProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [localDraft, setLocalDraft] = useState("");
+  const [attachedImage, setAttachedImage] = useState<ChatImageAttachment | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const inputText = draftText ?? localDraft;
   const setInputText = onDraftChange ?? setLocalDraft;
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -104,6 +109,76 @@ export function ChatInput({
       if (allowDeferredFocusRef.current) inputRef.current?.focus();
     });
   }, []);
+
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.startsWith("image/")) {
+          e.preventDefault();
+          if (!supportsVision) {
+            toast({
+              title: t("chat.visionNotSupported", "Image input not supported"),
+              description: t(
+                "chat.visionNotSupportedDesc",
+                "The currently selected model does not support images. Switch to a vision-capable model to paste images."
+              ),
+              variant: "destructive",
+            });
+            return;
+          }
+          const file = item.getAsFile();
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result as string;
+            const commaIdx = result.indexOf(",");
+            const base64 = commaIdx >= 0 ? result.slice(commaIdx + 1) : result;
+            setAttachedImage({
+              image: base64,
+              mediaType: file.type || "image/png",
+            });
+          };
+          reader.readAsDataURL(file);
+          return;
+        }
+      }
+    },
+    [supportsVision, toast, t]
+  );
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      if (!supportsVision) {
+        toast({
+          title: t("chat.visionNotSupported", "Image input not supported"),
+          description: t(
+            "chat.visionNotSupportedDesc",
+            "The currently selected model does not support images. Switch to a vision-capable model to attach images."
+          ),
+          variant: "destructive",
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const commaIdx = result.indexOf(",");
+        const base64 = commaIdx >= 0 ? result.slice(commaIdx + 1) : result;
+        setAttachedImage({
+          image: base64,
+          mediaType: file.type || "image/png",
+        });
+      };
+      reader.readAsDataURL(file);
+      e.target.value = "";
+    },
+    [supportsVision, toast, t]
+  );
 
   const voice = useVoiceDraft({
     onTranscript: (text) => {
@@ -149,12 +224,16 @@ export function ChatInput({
 
   const handleSubmit = useCallback(() => {
     const text = inputText.trim();
-    if (!text || !onTextSubmit || isBusy) return;
-    // Cleared first, so a host that can't send yet can write the draft back.
+    if ((!text && !attachedImage) || !onTextSubmit || isBusy) return;
+    const attachmentToSend = attachedImage ?? undefined;
     setInputText("");
-    onTextSubmit(text);
+    setAttachedImage(null);
+    onTextSubmit(
+      text || t("chat.imageOnlyPrompt", "Describe this image"),
+      attachmentToSend ? { attachment: attachmentToSend } : undefined
+    );
     focusAfterFrame();
-  }, [inputText, onTextSubmit, setInputText, isBusy, focusAfterFrame]);
+  }, [inputText, attachedImage, onTextSubmit, isBusy, setInputText, focusAfterFrame, t]);
 
   // The Cancel button unmounts once the reply stops, which would drop its focus to the page.
   const handleCancel = useCallback(() => {
@@ -255,6 +334,29 @@ export function ChatInput({
             />
           </PopoverContent>
         </Popover>
+      )}
+      {attachedImage && (
+        <div className="mb-2 flex items-center px-1">
+          <div className="relative inline-flex items-center gap-2 rounded-xl border border-border bg-card p-1.5 pe-3 shadow-sm dark:border-white/10">
+            <img
+              src={`data:${attachedImage.mediaType};base64,${attachedImage.image}`}
+              alt={t("chat.attachedImage", "Attached image")}
+              className="h-12 w-12 rounded-lg object-cover border border-border/50"
+            />
+            <div className="flex flex-col text-xs">
+              <span className="font-medium text-foreground">{t("chat.imageAttached", "Image attached")}</span>
+              <span className="text-[11px] text-muted-foreground">{attachedImage.mediaType}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAttachedImage(null)}
+              aria-label={t("common.remove", "Remove")}
+              className="ms-1 flex h-5 w-5 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-destructive/15 hover:text-destructive transition-colors"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        </div>
       )}
       <div
         ref={composerRef}
@@ -376,6 +478,45 @@ export function ChatInput({
               (expandOnFocus || variant === "sidebar" || isCompactNote) && "h-full"
             )}
           >
+            {supportsVision && isIdle && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  aria-label={t("chat.attachImage", "Attach image")}
+                  title={t("chat.attachImage", "Attach image")}
+                  className={cn(
+                    "flex items-center justify-center w-7 h-7 rounded-full shrink-0",
+                    expandOnFocus && COLLAPSED_ROW_CENTER,
+                    "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/8",
+                    "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring/30",
+                    "transition-colors duration-100"
+                  )}
+                >
+                  <svg
+                    width={15}
+                    height={15}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                    <circle cx="9" cy="9" r="2" />
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                  </svg>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </>
+            )}
             <textarea
               dir="auto"
               ref={inputRef}
@@ -385,6 +526,7 @@ export function ChatInput({
                 setInputText(e.target.value);
                 setSlashIndex(0);
               }}
+              onPaste={handlePaste}
               onKeyDown={handleKeyDown}
               onFocus={() => {
                 setIsFocused(true);
@@ -426,17 +568,17 @@ export function ChatInput({
               >
                 <Square size={12} className="fill-current" />
               </button>
-            ) : isIdle && (inputText.trim() || !voiceDraft) ? (
+            ) : isIdle && (inputText.trim() || attachedImage || !voiceDraft) ? (
               <button
                 onClick={handleSubmit}
-                disabled={!inputText.trim()}
+                disabled={!inputText.trim() && !attachedImage}
                 aria-label={t("agentMode.input.send")}
                 className={cn(
                   "rounded-full shrink-0",
                   voiceDraft && "animate-[scale-in_0.15s_ease-out_backwards]",
                   "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring/30",
                   "transition-all duration-100",
-                  inputText.trim()
+                  inputText.trim() || attachedImage
                     ? "hover:brightness-110 active:scale-95"
                     : variant === "assistant" || variant === "note" || variant === "sidebar"
                       ? "cursor-default"
@@ -447,7 +589,7 @@ export function ChatInput({
                   <span
                     className={cn(
                       "flex size-8 items-center justify-center rounded-full",
-                      inputText.trim() ? GRADIENT_CIRCLE : "bg-muted text-muted-foreground"
+                      inputText.trim() || attachedImage ? GRADIENT_CIRCLE : "bg-muted text-muted-foreground"
                     )}
                   >
                     <ArrowRight size={18} className="-rotate-90" />

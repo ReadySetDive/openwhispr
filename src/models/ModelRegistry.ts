@@ -17,10 +17,15 @@ export interface ModelDefinition {
   hfRepo: string;
   recommended?: boolean;
   supportsThinking?: boolean;
+  supportsVision?: boolean;
   // Optional MTP speculative-decoding drafter downloaded alongside the main GGUF.
   draftHfRepo?: string;
   draftFileName?: string;
   draftSizeBytes?: number;
+  // Optional multimodal projector downloaded alongside the main GGUF for vision models.
+  mmprojHfRepo?: string;
+  mmprojFileName?: string;
+  mmprojSizeBytes?: number;
 }
 
 export interface LocalProviderData {
@@ -497,6 +502,14 @@ export function getCloudModel(
 
 export function getLocalModel(modelId: string): ModelDefinition | undefined {
   return modelRegistry.getModel(modelId)?.model;
+}
+
+export function modelSupportsVision(modelId: string, providerId?: string): boolean {
+  const cloud = getCloudModel(modelId, providerId);
+  if (cloud) return !!cloud.supportsVision;
+  const local = getLocalModel(modelId);
+  if (local) return !!local.supportsVision;
+  return false;
 }
 
 export interface OpenAiApiConfig {

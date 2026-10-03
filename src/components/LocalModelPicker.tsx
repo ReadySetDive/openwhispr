@@ -5,7 +5,13 @@ import { DownloadProgressBar } from "./ui/DownloadProgressBar";
 import { ConfirmDialog } from "./ui/dialog";
 import ModelCardList, { type ModelCardOption } from "./ui/ModelCardList";
 import { useDialogs } from "../hooks/useDialogs";
-import { useModelDownload, type ModelType } from "../hooks/useModelDownload";
+import { useToast } from "./ui/useToast";
+import {
+  useModelDownload,
+  type ModelType,
+  LOCAL_MODELS_CHANGED_EVENT,
+  notifyLocalModelsChanged,
+} from "../hooks/useModelDownload";
 import { MODEL_PICKER_COLORS, type ColorScheme } from "../utils/modelPickerStyles";
 import { getProviderIcon, isMonochromeProvider } from "../utils/providerIcons";
 
@@ -20,6 +26,7 @@ export interface LocalModel {
   isDownloaded?: boolean;
   downloaded?: boolean;
   recommended?: boolean;
+  supportsVision?: boolean;
 }
 
 export interface LocalProvider {
@@ -52,7 +59,10 @@ export default function LocalModelPicker({
   onDownloadComplete,
 }: LocalModelPickerProps) {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [downloadedModels, setDownloadedModels] = useState<Set<string>>(new Set());
+  const [visionDownloadedModels, setVisionDownloadedModels] = useState<Set<string>>(new Set());
+  const [downloadingVisionModels, setDownloadingVisionModels] = useState<Set<string>>(new Set());
   const loadDownloadedModelsRequestRef = useRef(0);
 
   const knownModelIds = useMemo(
@@ -68,6 +78,7 @@ export default function LocalModelPicker({
 
     try {
       let downloaded = new Set<string>();
+      let visionDownloaded = new Set<string>();
       if (modelType === "whisper") {
         const result = await window.electronAPI?.listWhisperModels();
         if (result?.success) {
@@ -94,10 +105,16 @@ export default function LocalModelPicker({
               .filter((m: { isDownloaded?: boolean }) => m.isDownloaded)
               .map((m: { id: string }) => m.id)
           );
+          visionDownloaded = new Set(
+            result
+              .filter((m: { isVisionDownloaded?: boolean }) => m.isVisionDownloaded)
+              .map((m: { id: string }) => m.id)
+          );
         }
       }
       if (requestId === loadDownloadedModelsRequestRef.current) {
         setDownloadedModels(downloaded);
+        setVisionDownloadedModels(visionDownloaded);
         return downloaded;
       }
       return null;
@@ -106,6 +123,11 @@ export default function LocalModelPicker({
       return null;
     }
   }, [modelType]);
+
+  useEffect(() => {
+    window.addEventListener(LOCAL_MODELS_CHANGED_EVENT, loadDownloadedModels);
+    return () => window.removeEventListener(LOCAL_MODELS_CHANGED_EVENT, loadDownloadedModels);
+  }, [loadDownloadedModels]);
 
   useEffect(() => {
     const initAndValidate = async () => {
@@ -182,6 +204,50 @@ export default function LocalModelPicker({
     [showConfirmDialog, deleteModel, loadDownloadedModels, t]
   );
 
+  const handleDownloadVision = useCallback(
+    async (modelId: string) => {
+      setDownloadingVisionModels((prev) => new Set(prev).add(modelId));
+      try {
+        const res = await window.electronAPI?.modelDownloadVision?.(modelId);
+        if (res?.success) {
+          await loadDownloadedModels();
+          notifyLocalModelsChanged();
+        } else if (res?.error) {
+          toast({
+            title: t("common.error", "Error"),
+            description: res.error,
+          });
+        }
+      } catch (err: any) {
+        console.error("Failed to download vision add-on:", err);
+        toast({
+          title: t("common.error", "Error"),
+          description: err?.message || "Failed to download vision add-on",
+        });
+      } finally {
+        setDownloadingVisionModels((prev) => {
+          const next = new Set(prev);
+          next.delete(modelId);
+          return next;
+        });
+      }
+    },
+    [loadDownloadedModels, t, toast]
+  );
+
+  const handleDeleteVision = useCallback(
+    async (modelId: string) => {
+      try {
+        await window.electronAPI?.modelDeleteVision?.(modelId);
+        await loadDownloadedModels();
+        notifyLocalModelsChanged();
+      } catch (err) {
+        console.error("Failed to delete vision add-on:", err);
+      }
+    },
+    [loadDownloadedModels]
+  );
+
   const currentProvider = providers.find((p) => p.id === selectedProvider);
   const models = useMemo(() => currentProvider?.models || [], [currentProvider?.models]);
   const activeModels = allModels.filter((model) => downloads[model.id]);
@@ -228,6 +294,9 @@ export default function LocalModelPicker({
             icon: getProviderIcon(selectedProvider),
             invertInDark: isMonochromeProvider(selectedProvider),
             recommended: model.recommended,
+            supportsVision: model.supportsVision,
+            isVisionDownloaded: visionDownloadedModels.has(model.id),
+            isDownloadingVision: downloadingVisionModels.has(model.id),
             isDownloaded: downloadedModels.has(model.id) || model.isDownloaded || model.downloaded,
             isDownloading: isDownloadingModel(model.id),
             isCancelling: isCancellingModel(model.id),
@@ -237,6 +306,8 @@ export default function LocalModelPicker({
           onDownload={handleDownload}
           onDelete={handleDelete}
           onCancelDownload={cancelDownload}
+          onDownloadVision={handleDownloadVision}
+          onDeleteVision={handleDeleteVision}
           colorScheme={colorScheme}
         />
       </div>

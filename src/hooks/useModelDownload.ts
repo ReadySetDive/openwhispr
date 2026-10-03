@@ -20,7 +20,7 @@ const PROGRESS_THROTTLE_MS = 100;
  */
 export const LOCAL_MODELS_CHANGED_EVENT = "openwhispr-local-models-changed";
 
-function notifyLocalModelsChanged(): void {
+export function notifyLocalModelsChanged(): void {
   window.dispatchEvent(new Event(LOCAL_MODELS_CHANGED_EVENT));
 }
 

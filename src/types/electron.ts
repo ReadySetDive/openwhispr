@@ -932,6 +932,7 @@ export interface LocalModelDownloadStatus {
   downloadedBytes: number;
   totalBytes: number;
   sequence: number;
+  isVision?: boolean;
 }
 
 export interface ParakeetCheckResult {
@@ -1056,6 +1057,9 @@ export interface LocalLLMModelStatus extends ModelDefinition {
   providerName?: string;
   isDownloaded: boolean;
   isDownloading: boolean;
+  isVisionDownloaded?: boolean;
+  hasVisionAddon?: boolean;
+  isDownloadingVision?: boolean;
   downloadProgress: number;
   downloadedSize: number;
   totalSize: number;
@@ -1070,6 +1074,7 @@ export type LocalLLMDownloadProgressEvent =
       downloadedSize: number;
       totalSize: number;
       sequence?: number;
+      isVision?: boolean;
     }
   | {
       type: "complete";
@@ -1078,6 +1083,7 @@ export type LocalLLMDownloadProgressEvent =
       downloadedSize?: number;
       totalSize?: number;
       sequence?: number;
+      isVision?: boolean;
     }
   | {
       type: "error";
@@ -1086,6 +1092,7 @@ export type LocalLLMDownloadProgressEvent =
       code?: string;
       details?: unknown;
       sequence?: number;
+      isVision?: boolean;
     };
 
 export interface ConversationPreview {
@@ -1897,7 +1904,20 @@ declare global {
         code?: string;
         details?: string;
       }>;
+      modelDownloadVision: (modelId: string) => Promise<{
+        success: boolean;
+        path?: string;
+        error?: string;
+        code?: string;
+        details?: string;
+      }>;
       modelDelete: (modelId: string) => Promise<{
+        success: boolean;
+        error?: string;
+        code?: string;
+        details?: string;
+      }>;
+      modelDeleteVision: (modelId: string) => Promise<{
         success: boolean;
         error?: string;
         code?: string;

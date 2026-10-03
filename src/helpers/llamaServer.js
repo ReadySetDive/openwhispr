@@ -79,6 +79,7 @@ class LlamaServerManager {
     // the start() restart check); activeDraftModelPath is the one that actually loaded.
     this.draftModelPath = null;
     this.activeDraftModelPath = null;
+    this.mmprojPath = null;
     // The context that actually loaded, which the GPU ladder may step down
     // below the requested one.
     this.activeContextSize = null;
@@ -175,14 +176,16 @@ class LlamaServerManager {
   async start(modelPath, options = {}) {
     if (this.startupPromise) return this.startupPromise;
 
-    // A change in drafter presence for the same model must still restart the
-    // server so the new speculative-decoding flags take effect.
+    // A change in drafter or vision projector presence for the same model must still restart the
+    // server so the new flags take effect.
     const requestedDraftPath = options.draftModelPath || null;
+    const requestedMmprojPath = options.mmprojPath || null;
     const requestedContextSize = options.contextSize || DEFAULT_CONTEXT_SIZE;
     if (
       this.ready &&
       this.modelPath === modelPath &&
       this.draftModelPath === requestedDraftPath &&
+      this.mmprojPath === requestedMmprojPath &&
       requestedContextSize <= (this.contextSize || 0)
     ) {
       // Streaming chat reaches the port directly and never goes through
@@ -224,6 +227,10 @@ class LlamaServerManager {
       "--jinja",
     ];
 
+    if (options.mmprojPath) {
+      args.push("--mmproj", options.mmprojPath);
+    }
+
     // llama-server otherwise reserves 8192 MiB of host RAM for the prompt
     // cache, on top of the KV cache, which would undo the memory budget. Cap
     // it rather than disabling it: 0 forces a full re-prefill every request.
@@ -239,10 +246,11 @@ class LlamaServerManager {
 
     this.port = await this.findAvailablePort();
     this.modelPath = modelPath;
-    // Store the REQUESTED drafter so start() compares against a stable value across
+    // Store the REQUESTED drafter and mmproj so start() compares against a stable value across
     // identical requests; activeDraftModelPath tracks what actually loaded (see ctor).
     this.draftModelPath = options.draftModelPath || null;
     this.activeDraftModelPath = null;
+    this.mmprojPath = options.mmprojPath || null;
 
     this.activeContextSize = options.contextSize || DEFAULT_CONTEXT_SIZE;
     const baseArgs = this._buildBaseArgs(modelPath, this.port, options);
@@ -875,6 +883,7 @@ class LlamaServerManager {
     this.modelPath = null;
     this.draftModelPath = null;
     this.activeDraftModelPath = null;
+    this.mmprojPath = null;
     this.activeBackend = null;
     this.contextSize = null;
     this.activeContextSize = null;

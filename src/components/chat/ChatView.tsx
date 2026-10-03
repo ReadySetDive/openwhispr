@@ -1,10 +1,11 @@
-import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { useChatPersistence } from "./useChatPersistence";
 import { useChatStreaming } from "./useChatStreaming";
 import { useChatMessageSender } from "./useChatMessageSender";
 import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
+import { ChatModelSelector, type ChatModelOverride } from "./ChatModelSelector";
 import ConversationList from "./ConversationList";
 import { ConfirmDialog } from "../ui/dialog";
 import { PAGE_CONTENT_WIDTH_CLASS } from "../ui/pageWidth";
@@ -13,6 +14,9 @@ import { useDialogs } from "../../hooks/useDialogs";
 import { getCachedPlatform } from "../../utils/platform";
 import { Check, FileText, Video } from "../icons";
 import { observeChatComposerInset } from "./composerLayout";
+import { useSettingsStore, selectResolvedLLMConfig } from "../../stores/settingsStore";
+import { modelSupportsVision } from "../../models/ModelRegistry";
+import { LOCAL_MODELS_CHANGED_EVENT } from "../../hooks/useModelDownload";
 
 const CommandSearch = lazy(() => import("../CommandSearch"));
 
@@ -68,13 +72,83 @@ export default function ChatView() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
   const [submissionInFlight, setSubmissionInFlight] = useState(false);
+  const [conversationOverrides, setConversationOverrides] = useState<Record<string, ChatModelOverride>>({});
   const { confirmDialog, showConfirmDialog, hideConfirmDialog } = useDialogs();
+
+  const currentConvKey = activeConversationId !== null ? String(activeConversationId) : "new";
+  const activeOverride = conversationOverrides[currentConvKey] ?? null;
+
+  const settings = useSettingsStore();
+  const [visionDownloadedModels, setVisionDownloadedModels] = useState<Set<string>>(new Set());
+
+  const checkVisionModels = useCallback(async () => {
+    try {
+      const result = await window.electronAPI?.modelGetAll?.();
+      if (Array.isArray(result)) {
+        setVisionDownloadedModels(
+          new Set(
+            result
+              .filter((m: { isVisionDownloaded?: boolean }) => m.isVisionDownloaded)
+              .map((m: { id: string }) => m.id)
+          )
+        );
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    checkVisionModels();
+    window.addEventListener(LOCAL_MODELS_CHANGED_EVENT, checkVisionModels);
+    return () => window.removeEventListener(LOCAL_MODELS_CHANGED_EVENT, checkVisionModels);
+  }, [checkVisionModels]);
+
+  const globalConfig = useMemo(
+    () => selectResolvedLLMConfig(settings, "chatIntelligence"),
+    [settings]
+  );
+  const effectiveModel = activeOverride?.modelId ?? globalConfig.model;
+  const effectiveProvider = activeOverride?.providerId ?? globalConfig.provider;
+  const effectiveMode = activeOverride?.mode ?? globalConfig.mode;
+
+  const supportsVision = useMemo(() => {
+    const isLocal = effectiveMode === "local" || effectiveProvider === "local";
+    if (isLocal) {
+      return (
+        modelSupportsVision(effectiveModel, effectiveProvider) &&
+        visionDownloadedModels.has(effectiveModel)
+      );
+    }
+    return activeOverride
+      ? activeOverride.supportsVision
+      : modelSupportsVision(effectiveModel, effectiveProvider);
+  }, [effectiveMode, effectiveProvider, effectiveModel, activeOverride, visionDownloadedModels]);
+
+  const handleOverrideChange = useCallback(
+    (override: ChatModelOverride | null) => {
+      setConversationOverrides((prev) => {
+        const next = { ...prev };
+        if (!override) {
+          delete next[currentConvKey];
+        } else {
+          next[currentConvKey] = override;
+        }
+        return next;
+      });
+    },
+    [currentConvKey]
+  );
 
   const persistence = useChatPersistence({
     conversationId: activeConversationId,
     onConversationCreated: (id) => {
       setActiveConversationId(id);
       setRefreshKey((k) => k + 1);
+      setConversationOverrides((prev) => {
+        if (prev["new"]) {
+          return { ...prev, [String(id)]: prev["new"] };
+        }
+        return prev;
+      });
     },
   });
 
@@ -82,6 +156,9 @@ export default function ChatView() {
     messages: persistence.messages,
     setMessages: persistence.setMessages,
     allowConnectors: true,
+    overrideModel: activeOverride?.modelId,
+    overrideProvider: activeOverride?.providerId,
+    overrideMode: activeOverride?.mode,
     onStreamComplete: (_id, content, toolCalls) => {
       persistence.saveAssistantMessage(content, toolCalls);
     },
@@ -215,6 +292,12 @@ export default function ChatView() {
           />
         </div>
         <div className="relative flex-1 min-w-80 min-h-0 flex flex-col">
+          <div className="flex items-center justify-between border-b border-border/80 px-4 py-2 bg-background/60 backdrop-blur-sm z-10 dark:border-white/10 shrink-0">
+            <ChatModelSelector
+              override={activeOverride}
+              onOverrideChange={handleOverrideChange}
+            />
+          </div>
           <ChatMessages
             messages={persistence.messages}
             emptyState={
@@ -249,6 +332,7 @@ export default function ChatView() {
               partialTranscript=""
               onTextSubmit={handleTextSubmit}
               onCancel={streaming.cancelStream}
+              supportsVision={supportsVision}
               voiceDraft
               focusOnIdle={false}
               placeholder={t("chat.inputPlaceholder")}

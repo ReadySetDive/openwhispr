@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Copy, Check, Search, FileText, ChevronDown, ChevronRight, CircleAlert } from "../icons";
 import { cn } from "../lib/utils";
 import { MarkdownRenderer } from "../ui/MarkdownRenderer";
-import type { ToolCallInfo } from "./types";
+import type { ToolCallInfo, ChatImageAttachment } from "./types";
 import { extractNoteCards } from "./noteCards";
 import { toolIcons } from "./toolIcons";
 import { ApprovalCard } from "./ApprovalCard";
@@ -15,6 +15,7 @@ interface ChatMessageProps {
   content: string;
   isStreaming: boolean;
   toolCalls?: ToolCallInfo[];
+  attachment?: ChatImageAttachment;
   onOpenNote?: (noteId: number) => void;
 }
 
@@ -182,6 +183,7 @@ export const ChatMessage = memo(function ChatMessage({
   content,
   isStreaming,
   toolCalls,
+  attachment,
   onOpenNote,
 }: ChatMessageProps) {
   const { t } = useTranslation();
@@ -208,12 +210,21 @@ export const ChatMessage = memo(function ChatMessage({
           className={cn(
             "max-w-[80%] px-3 py-2 rounded-lg rounded-ee-sm",
             "bg-primary/90 text-primary-foreground",
-            "text-[13px] leading-relaxed"
+            "text-[13px] leading-relaxed flex flex-col gap-2"
           )}
         >
-          <span dir="auto" className="whitespace-pre-wrap">
-            {content}
-          </span>
+          {attachment && (
+            <img
+              src={`data:${attachment.mediaType || "image/png"};base64,${attachment.image}`}
+              alt="Attached content"
+              className="max-h-60 max-w-full rounded-md object-contain bg-black/15 shadow-sm"
+            />
+          )}
+          {content && (
+            <span dir="auto" className="whitespace-pre-wrap">
+              {content}
+            </span>
+          )}
         </div>
       </div>
     );
