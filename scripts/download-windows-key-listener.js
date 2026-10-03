@@ -52,11 +52,11 @@ async function main() {
   } else {
     console.log("\n[windows-key-listener] Fetching latest release...");
   }
-  const tagToFind = VERSION_OVERRIDE || TAG_PREFIX;
-  const release = await fetchLatestRelease(REPO, { tagPrefix: tagToFind });
+  const tagToFind = VERSION_OVERRIDE || "windows-key-listener-v1.0.0";
+  const release = await fetchLatestRelease(REPO, { tag: tagToFind });
 
   if (!release) {
-    console.error("[windows-key-listener] Could not find a release matching prefix:", TAG_PREFIX);
+    console.error("[windows-key-listener] Could not find release:", tagToFind);
     console.log(
       "[windows-key-listener] Push-to-Talk will use fallback mode (compile locally or tap mode)"
     );

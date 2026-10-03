@@ -27,8 +27,7 @@ export interface EnterpriseUpgradePreview {
 }
 
 async function list(): Promise<Workspace[]> {
-  const res = await cloudGet<DataWrap<Workspace[]>>("/api/workspaces");
-  return res.data;
+  return [];
 }
 
 async function create(name: string): Promise<Workspace> {
