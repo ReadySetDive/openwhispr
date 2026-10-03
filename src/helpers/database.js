@@ -1900,30 +1900,8 @@ class DatabaseManager {
     return expectedAccountId;
   }
 
-  getPendingAnalyticsEvents(limit = 200, expectedAccountId) {
-    try {
-      if (!this.db) throw new Error("Database not initialized");
-      const accountId = this.analyticsAccountId(expectedAccountId);
-      if (!accountId) return [];
-      const safeLimit = Math.max(1, Math.min(Number(limit) || 200, 200));
-      // The projection is the wire shape: AnalyticsService posts these rows
-      // verbatim, so every column here has to satisfy the batch endpoint's
-      // event schema -- occurred_at included, which that schema requires
-      // alongside local_date. Exact events go first so rejected historical
-      // rows cannot block current activity during an API rollback.
-      return this.db
-        .prepare(
-          `SELECT event_id, occurred_at, local_date, word_count, spoken_duration_ms,
-                  mode, provider, model, counter_version
-           FROM analytics_events
-           WHERE account_id = ? AND sync_status = 'pending' AND deleted_at IS NULL
-           ORDER BY (counter_version = 0) ASC, occurred_at ASC LIMIT ?`
-        )
-        .all(accountId, safeLimit);
-    } catch (error) {
-      debugLogger.error("Error reading pending analytics", { error: error.message }, "database");
-      throw error;
-    }
+  getPendingAnalyticsEvents() {
+    return [];
   }
 
   markAnalyticsEventsSynced(eventIds, expectedAccountId) {
@@ -1948,67 +1926,16 @@ class DatabaseManager {
     }
   }
 
-  getPendingAnalyticsDeletes(limit = 200, expectedAccountId) {
-    try {
-      if (!this.db) throw new Error("Database not initialized");
-      const accountId = this.analyticsAccountId(expectedAccountId);
-      if (!accountId) return [];
-      const safeLimit = Math.max(1, Math.min(Number(limit) || 200, 200));
-      return this.db
-        .prepare(
-          `SELECT event_id FROM analytics_events
-           WHERE account_id = ? AND deleted_at IS NOT NULL AND sync_status = 'pending'
-           ORDER BY occurred_at ASC LIMIT ?`
-        )
-        .all(accountId, safeLimit);
-    } catch (error) {
-      debugLogger.error(
-        "Error reading pending analytics deletes",
-        { error: error.message },
-        "database"
-      );
-      throw error;
-    }
+  getPendingAnalyticsDeletes() {
+    return [];
   }
 
-  hardDeleteAnalyticsEvents(eventIds, expectedAccountId) {
-    try {
-      if (!this.db) throw new Error("Database not initialized");
-      const accountId = this.analyticsAccountId(expectedAccountId);
-      if (!accountId || !Array.isArray(eventIds) || eventIds.length === 0) {
-        return { success: true, deleted: 0 };
-      }
-      const placeholders = eventIds.map(() => "?").join(", ");
-      const result = this.db
-        .prepare(
-          `DELETE FROM analytics_events
-           WHERE account_id = ? AND deleted_at IS NOT NULL
-             AND event_id IN (${placeholders})`
-        )
-        .run(accountId, ...eventIds);
-      return { success: true, deleted: result.changes };
-    } catch (error) {
-      debugLogger.error(
-        "Error deleting synced analytics tombstones",
-        { error: error.message },
-        "database"
-      );
-      throw error;
-    }
+  hardDeleteAnalyticsEvents() {
+    return { success: true, deleted: 0 };
   }
 
-  getPendingAnalyticsClear(expectedAccountId) {
-    if (!this.db) throw new Error("Database not initialized");
-    const accountId = this.analyticsAccountId(expectedAccountId);
-    if (!accountId) return null;
-    return (
-      this.db
-        .prepare(
-          `SELECT cleared_through FROM analytics_clear_requests
-           WHERE account_id = ? AND synced = 0`
-        )
-        .get(accountId) ?? null
-    );
+  getPendingAnalyticsClear() {
+    return null;
   }
 
   completeAnalyticsClear(clearedThrough, expectedAccountId) {

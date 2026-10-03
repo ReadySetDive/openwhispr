@@ -10,8 +10,10 @@ function createCloudConfigRequestHandler({
 }) {
   return async function handleCloudConfigRequest(event) {
     try {
-      const apiUrl = getApiUrl();
-      if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
+      const apiUrl = typeof getApiUrl === "function" ? getApiUrl() : null;
+      if (!apiUrl) {
+        return { success: true, models: [] };
+      }
 
       const authHeader = await getAuthHeader(event);
       if (!Object.keys(authHeader).length) throw new Error("Not authenticated");

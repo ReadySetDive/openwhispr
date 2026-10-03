@@ -279,16 +279,16 @@ export class SyncService {
   }
 
   canSync(): boolean {
-    return this.consent().backup;
+    return false;
   }
 
   private canSyncSharedNotes(): boolean {
-    return this.consent().shared;
+    return false;
   }
 
   // Team-space membership is per-space consent on the same terms as sharing.
   private canSyncTeamSpaces(): boolean {
-    return this.consent().shared;
+    return false;
   }
 
   // Whether the API supports team scope (GET /api/me/teams deployed); probed

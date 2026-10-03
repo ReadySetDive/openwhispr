@@ -35,19 +35,16 @@ const requestedHistoryBackfillAccounts = new Set<string>();
 
 export function subscribeToAnalyticsRefresh(
   refresh: () => void | Promise<void>,
-  cloudInsightsActive: boolean
+  _cloudInsightsActive?: boolean
 ): () => void {
   let disposed = false;
   let refreshRunning = false;
-  let trailingLocalRefreshRequested = false;
-  let trailingRemoteRefreshRequested = false;
-  const runRefresh = async (remoteOnly = false): Promise<void> => {
-    if (disposed || (remoteOnly && window.document.visibilityState !== "visible")) {
-      return;
-    }
+  let trailingRefreshRequested = false;
+
+  const runRefresh = async (): Promise<void> => {
+    if (disposed) return;
     if (refreshRunning) {
-      if (remoteOnly) trailingRemoteRefreshRequested = true;
-      else trailingLocalRefreshRequested = true;
+      trailingRefreshRequested = true;
       return;
     }
 
@@ -58,64 +55,21 @@ export function subscribeToAnalyticsRefresh(
       console.error("Refreshing analytics failed:", error);
     } finally {
       refreshRunning = false;
-      const runLocalRefresh = trailingLocalRefreshRequested;
-      const runRemoteRefresh = trailingRemoteRefreshRequested;
-      trailingLocalRefreshRequested = false;
-      trailingRemoteRefreshRequested = false;
-      if (!disposed && runLocalRefresh) {
+      if (!disposed && trailingRefreshRequested) {
+        trailingRefreshRequested = false;
         void runRefresh();
-      } else if (!disposed && runRemoteRefresh && window.document.visibilityState === "visible") {
-        void runRefresh(true);
       }
     }
   };
-  const requestLocalRefresh = (): void => {
+
+  const disposeLocal = window.electronAPI.onAnalyticsChanged?.(() => {
     void runRefresh();
-  };
-  const requestRemoteRefresh = (): void => {
-    void runRefresh(true);
-  };
-
-  const disposeLocal = window.electronAPI.onAnalyticsChanged?.(requestLocalRefresh);
-  requestLocalRefresh();
-  if (!cloudInsightsActive) {
-    return () => {
-      disposed = true;
-      disposeLocal?.();
-    };
-  }
-
-  let remoteRefreshTimeoutId: number | null = null;
-  const refreshRemoteWhenVisible = (): void => {
-    if (window.document.visibilityState !== "visible") {
-      trailingRemoteRefreshRequested = false;
-      if (remoteRefreshTimeoutId !== null) {
-        window.clearTimeout(remoteRefreshTimeoutId);
-        remoteRefreshTimeoutId = null;
-      }
-      return;
-    }
-    if (remoteRefreshTimeoutId !== null) window.clearTimeout(remoteRefreshTimeoutId);
-    remoteRefreshTimeoutId = window.setTimeout(() => {
-      remoteRefreshTimeoutId = null;
-      requestRemoteRefresh();
-    }, ANALYTICS_REMOTE_REFRESH_DEBOUNCE_MS);
-  };
-
-  window.addEventListener("focus", refreshRemoteWhenVisible);
-  window.document.addEventListener("visibilitychange", refreshRemoteWhenVisible);
-  const intervalId = window.setInterval(
-    refreshRemoteWhenVisible,
-    ANALYTICS_SUMMARY_REFRESH_INTERVAL_MS
-  );
+  });
+  void runRefresh();
 
   return () => {
     disposed = true;
     disposeLocal?.();
-    window.removeEventListener("focus", refreshRemoteWhenVisible);
-    window.document.removeEventListener("visibilitychange", refreshRemoteWhenVisible);
-    window.clearInterval(intervalId);
-    if (remoteRefreshTimeoutId !== null) window.clearTimeout(remoteRefreshTimeoutId);
   };
 }
 
@@ -195,13 +149,8 @@ interface AnalyticsSyncOptions {
   context?: AnalyticsSyncContext;
 }
 
-export function syncPendingAnalytics(options: AnalyticsSyncOptions = {}): Promise<number> {
-  const pass = passQueue.then(
-    () => runAnalyticsPass(options),
-    () => runAnalyticsPass(options)
-  );
-  passQueue = pass.catch(() => {});
-  return pass;
+export async function syncPendingAnalytics(_options: AnalyticsSyncOptions = {}): Promise<number> {
+  return 0;
 }
 
 async function runAnalyticsPass({
@@ -345,37 +294,7 @@ function isAnalyticsSummary(value: unknown): value is AnalyticsSummary {
 }
 
 export async function getAccountAnalyticsSummary(
-  accountId: string | null = null
+  _accountId: string | null = null
 ): Promise<AnalyticsSummary> {
-  const requestHistoryBackfill = Boolean(
-    accountId && !requestedHistoryBackfillAccounts.has(accountId)
-  );
-  if (requestHistoryBackfill && accountId) requestedHistoryBackfillAccounts.add(accountId);
-  const params = new URLSearchParams({
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-  });
-  if (requestHistoryBackfill) params.set("backfill", "true");
-
-  let summary: unknown;
-  try {
-    summary = await cloudGet<unknown>(`/api/analytics/summary?${params}`);
-  } catch (error) {
-    // A transient first request must not permanently suppress reconciliation.
-    // The Set is claimed before I/O so overlapping refreshes still collapse to
-    // one trigger for this account and renderer process.
-    if (requestHistoryBackfill && accountId) requestedHistoryBackfillAccounts.delete(accountId);
-    throw error;
-  }
-  // The cloud is an untrusted JSON boundary. Invalid buckets crash Heatmap
-  // during render, outside the caller's async fallback, so validate the whole
-  // shape before any part of it reaches component state. A successful request
-  // already triggered history reconciliation; malformed presentation data
-  // must not start another continuation chain on the next refresh.
-  if (!isAnalyticsSummary(summary)) {
-    throw new Error("Malformed analytics summary from cloud");
-  }
-  if (requestHistoryBackfill && accountId && summary.historyBackfillRetryRequired === true) {
-    requestedHistoryBackfillAccounts.delete(accountId);
-  }
-  return summary;
+  return await window.electronAPI.getAnalyticsSummary();
 }

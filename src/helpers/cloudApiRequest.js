@@ -74,8 +74,8 @@ function createCloudApiRequestHandler({
 }) {
   return async function handleCloudApiRequest(opts) {
     try {
-      const apiUrl = getApiUrl();
-      if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
+      const apiUrl = typeof getApiUrl === "function" ? getApiUrl() : null;
+      if (!apiUrl) return { success: true, models: [], data: null };
 
       if (typeof opts?.path !== "string" || !opts.path.startsWith("/")) {
         return { success: false, error: "Invalid API path" };

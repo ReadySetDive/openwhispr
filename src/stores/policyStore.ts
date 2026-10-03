@@ -167,15 +167,15 @@ function ensurePolicyLifecycleListeners(): void {
   window.setInterval(refreshResolvedPolicy, POLICY_SUCCESS_REFRESH_MS);
 }
 
-export const usePolicyStore = create<PolicyState>()((set, get) => {
-  const resetPolicy = (status: "idle" | "loading"): void => {
+export const usePolicyStore = create<PolicyState>()((set, _get) => {
+  const resetPolicy = (): void => {
     fetchSequence += 1;
     fetchInFlight = null;
     set({
-      accountId: null,
-      authGeneration: null,
-      revision: 0,
-      status,
+      accountId: "local-user",
+      authGeneration: 1,
+      revision: 1,
+      status: "unmanaged",
       managed: false,
       policy: null,
       appVersion: null,
@@ -183,95 +183,15 @@ export const usePolicyStore = create<PolicyState>()((set, get) => {
   };
 
   return {
-    accountId: null,
-    authGeneration: null,
-    revision: 0,
-    status: "idle",
+    accountId: "local-user",
+    authGeneration: 1,
+    revision: 1,
+    status: "unmanaged",
     managed: false,
     policy: null,
     appVersion: null,
-    fetchPolicy: (accountId: string, authGeneration: number): Promise<void> => {
-      ensurePolicyLifecycleListeners();
-      if (
-        fetchInFlight?.accountId === accountId &&
-        fetchInFlight.authGeneration === authGeneration
-      ) {
-        return fetchInFlight.promise;
-      }
-
-      const previous = get();
-      const sameIdentity =
-        previous.accountId === accountId && previous.authGeneration === authGeneration;
-      // Keep every settled state visible while refreshing the same account.
-      // In particular, replacing `error` with `loading` makes AppRouter unmount
-      // onboarding; the remounted useAuth then starts another refresh and can
-      // create an error -> loading -> error loop while the service is offline.
-      const preserveSettledPolicy =
-        sameIdentity && previous.status !== "idle" && previous.status !== "loading";
-      const sequence = ++fetchSequence;
-      if (!preserveSettledPolicy) {
-        set({
-          accountId,
-          authGeneration,
-          revision: sameIdentity ? previous.revision : 0,
-          status: "loading",
-          managed: false,
-          policy: null,
-          appVersion: null,
-        });
-      }
-
-      const promise = (async () => {
-        const versionPromise = readAppVersion();
-        try {
-          const result = await window.electronAPI.getWorkspacePolicy?.(accountId, authGeneration);
-          const appVersion = await versionPromise;
-          if (sequence !== fetchSequence) return;
-          if (result?.success) {
-            if (applyPolicySnapshot(result, appVersion)) return;
-            throw new Error("Workspace policy response did not match the active credential");
-          }
-          throw Object.assign(new Error(result?.error || "Workspace policy is unavailable"), {
-            code: result?.code,
-          });
-        } catch (error) {
-          if (sequence !== fetchSequence) return;
-          logger.error("Failed to fetch workspace policy:", error);
-          const failureCode =
-            error && typeof error === "object" && "code" in error && typeof error.code === "string"
-              ? error.code
-              : undefined;
-          // Resolve the version before the staleness re-check: awaiting inside set()
-          // would let a clearPolicy()/newer fetch land first and then be clobbered.
-          const appVersion = await versionPromise;
-          if (sequence !== fetchSequence) return;
-          const current = get();
-          if (!(
-            current.accountId === accountId &&
-            shouldPreserveResolvedPolicyOnFailure(current.status, failureCode)
-          )) {
-            set({
-              accountId,
-              status: "error",
-              managed: false,
-              policy: null,
-              appVersion,
-            });
-          }
-        } finally {
-          if (
-            fetchInFlight?.accountId === accountId &&
-            fetchInFlight.authGeneration === authGeneration
-          ) {
-            fetchInFlight = null;
-          }
-        }
-      })();
-
-      fetchInFlight = { accountId, authGeneration, promise };
-      return promise;
-    },
-    clearPolicy: (): void => resetPolicy("idle"),
-    suspendPolicy: (): void => resetPolicy("loading"),
+    fetchPolicy: async (): Promise<void> => {},
+    clearPolicy: (): void => resetPolicy(),
+    suspendPolicy: (): void => {},
   };
 });

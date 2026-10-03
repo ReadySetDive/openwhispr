@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isAllowedRequest, attachNetworkFilter } from "../../src/helpers/networkFilter.js";
+import { isAllowedRequest, attachNetworkFilter, initNetworkFilter } from "../../src/helpers/networkFilter.js";
 
 test("local and internal protocols are allowed", () => {
   assert.equal(isAllowedRequest("file:///path/to/model.bin"), true);
@@ -101,7 +101,6 @@ test("attachNetworkFilter sets up webRequest handler on session", () => {
 });
 
 test("initNetworkFilter binds defaultSession and session-created", () => {
-  const { initNetworkFilter } = require("../../src/helpers/networkFilter.js");
   let defaultRegistered = false;
   let eventHandler = null;
 
