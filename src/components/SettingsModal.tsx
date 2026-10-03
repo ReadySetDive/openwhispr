@@ -37,6 +37,8 @@ const SECTION_ALIASES: Record<string, SettingsSectionType> = {
   privacy: "privacyData",
   permissions: "privacyData",
   developer: "system",
+  plansBilling: "account",
+  workspace: "account",
 };
 
 const LEGACY_SUB_TAB: Record<string, string> = {
@@ -68,20 +70,6 @@ export default function SettingsModal({ open, onOpenChange, initialSection }: Se
         label: t("settingsModal.sections.account.label"),
         icon: UserCircle,
         description: t("settingsModal.sections.account.description"),
-        group: t("settingsModal.groups.account"),
-      },
-      {
-        id: "plansBilling",
-        label: t("settingsModal.sections.plansBilling.label"),
-        icon: CreditCard,
-        description: t("settingsModal.sections.plansBilling.description"),
-        group: t("settingsModal.groups.account"),
-      },
-      {
-        id: "workspace" as const,
-        label: t("settingsModal.sections.workspace.label"),
-        icon: Users,
-        description: t("settingsModal.sections.workspace.description"),
         group: t("settingsModal.groups.account"),
       },
       {
@@ -127,8 +115,8 @@ export default function SettingsModal({ open, onOpenChange, initialSection }: Se
         group: t("settingsModal.groups.system"),
       },
     ];
-    return isSignedIn ? items : items.filter((item) => item.id !== "workspace");
-  }, [t, isSignedIn]);
+    return items;
+  }, [t]);
 
   const resolveSection = (section: string | undefined): SettingsSectionType => {
     if (!section) return "account";

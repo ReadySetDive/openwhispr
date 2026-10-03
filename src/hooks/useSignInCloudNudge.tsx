@@ -13,46 +13,8 @@ import { usePolicySnapshot } from "./usePolicy";
  * The marker requestSignIn left behind survives the reload that sign-in goes through.
  */
 export function useSignInCloudNudge(
-  isSignedIn: boolean,
-  onOpenTranscriptionSettings: () => void
+  _isSignedIn: boolean,
+  _onOpenTranscriptionSettings: () => void
 ): void {
-  const { t } = useTranslation();
-  const { toast, dismiss } = useToast();
-  const policy = usePolicySnapshot();
-  // Policy-effective, because a managed user the policy already clamps onto Cloud is
-  // there whatever their own preference still says.
-  const transcriptionMode = useSettingsStore(
-    (settings) => selectPolicyEffectiveSettings(settings, policy).transcriptionMode
-  );
-
-  useEffect(() => {
-    const promptedAt = localStorage.getItem(SIGN_IN_PROMPTED_AT_KEY);
-    if (promptedAt === null) return;
-    const decision = decideSignInCloudNudge({
-      promptedAt: Number(promptedAt),
-      now: Date.now(),
-      isSignedIn,
-      policy,
-      transcriptionMode,
-    });
-    if (decision === "wait") return;
-    localStorage.removeItem(SIGN_IN_PROMPTED_AT_KEY);
-    if (decision === "skip") return;
-
-    const toastId = toast({
-      title: t("controlPanel.cloudNudge.title"),
-      description: t("controlPanel.cloudNudge.description"),
-      duration: 10000,
-      action: (
-        <ToastActionButton
-          onClick={() => {
-            dismiss(toastId);
-            onOpenTranscriptionSettings();
-          }}
-        >
-          {t("controlPanel.cloudNudge.action")}
-        </ToastActionButton>
-      ),
-    });
-  }, [dismiss, isSignedIn, onOpenTranscriptionSettings, policy, t, toast, transcriptionMode]);
+  // Offline: cloud nudge disabled
 }

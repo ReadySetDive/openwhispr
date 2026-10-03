@@ -30,11 +30,7 @@ function SectionMetaTag({ meta }: { meta: SectionMeta | null }): ReactElement | 
       </span>
     );
   }
-  return (
-    <Badge variant="outline" className="ms-auto text-[10px] px-1.5 py-0 font-normal">
-      {meta.badge === "pro" ? t("integrations.plan.pro") : t("integrations.cli.local.freeBadge")}
-    </Badge>
-  );
+  return null;
 }
 
 export function IntegrationsNav({

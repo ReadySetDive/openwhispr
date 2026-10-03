@@ -2209,48 +2209,21 @@ export default function SettingsPage({
             ) : isLoaded && isSignedIn && user ? (
               <>
                 <SectionHeader title={t("settingsPage.account.title")} />
-                <ProfileSection
-                  name={user.name || ""}
-                  onSessionRefresh={() => {
-                    void refetch();
-                  }}
-                />
-
-                <SettingsPanel>
-                  <SettingsPanelRow>
-                    <Button
-                      onClick={handleSignOut}
-                      variant="outline"
-                      disabled={isSigningOut}
-                      size="sm"
-                      className="w-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50"
-                    >
-                      <LogOut className="me-1.5 h-3.5 w-3.5" />
-                      {isSigningOut
-                        ? t("settingsPage.account.signOut.signingOut")
-                        : t("settingsPage.account.signOut.signOut")}
-                    </Button>
-                  </SettingsPanelRow>
-                </SettingsPanel>
-
                 <SettingsPanel>
                   <SettingsPanelRow>
                     <SettingsRow
-                      label={t("settingsPage.account.deleteAccount.label")}
-                      description={t("settingsPage.account.deleteAccount.labelDescription")}
+                      label="User"
+                      description={user.email || "local@whispr.offline"}
                     >
-                      <Button
-                        onClick={handleDeleteAccount}
-                        variant="outline"
-                        disabled={isDeletingAccount}
-                        size="sm"
-                        className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive"
-                      >
-                        <Trash2 className="me-1.5 h-3.5 w-3.5" />
-                        {isDeletingAccount
-                          ? t("settingsPage.account.deleteAccount.deleting")
-                          : t("settingsPage.account.deleteAccount.button")}
-                      </Button>
+                      <Badge variant="outline">{user.name || "Local User"}</Badge>
+                    </SettingsRow>
+                  </SettingsPanelRow>
+                  <SettingsPanelRow>
+                    <SettingsRow
+                      label="Offline Mode"
+                      description="OpenWhispr is running entirely locally on this computer. Speech recognition, transcription, and notes stay 100% on-device."
+                    >
+                      <Badge variant="default">Active</Badge>
                     </SettingsRow>
                   </SettingsPanelRow>
                 </SettingsPanel>

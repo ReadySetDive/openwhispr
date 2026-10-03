@@ -1003,10 +1003,10 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
               setSettingsSection(undefined);
               setShowSettings(true);
             }}
-            onOpenReferrals={() => setShowReferrals(true)}
+            onOpenReferrals={undefined}
             onInviteTeam={inviteWorkspace ? () => setShowInviteTeam(true) : undefined}
             onUpgrade={() => {
-              setSettingsSection("plansBilling");
+              setSettingsSection("account");
               setShowSettings(true);
             }}
             isOverLimit={usage?.isOverLimit ?? false}
@@ -1240,7 +1240,7 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
                   <IntegrationsView
                     isPaid={usage?.hasPaidAccessOptimistic ?? false}
                     onUpgrade={() => {
-                      setSettingsSection("plansBilling");
+                      setSettingsSection("account");
                       setShowSettings(true);
                     }}
                     section={integrationsSection}

@@ -14,13 +14,7 @@ export function decideUpsell({
   hasPaidAccess,
   isPastDue,
 }: UpsellInput): UpsellDecision {
-  if (!authLoaded) return "unknown";
-  // Signed out there is no usage response to await; the upsell is the point.
-  if (!isSignedIn) return "show";
-  if (hasPaidAccess === null) return "unknown";
-  // Past due already has its own banner, toast and recovery button.
-  if (isPastDue || hasPaidAccess) return "hide";
-  return "show";
+  return "hide";
 }
 
 export type ProPlanCardCta =
