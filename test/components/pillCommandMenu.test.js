@@ -69,3 +69,7 @@ test("the command menu offers a meeting recording only while idle and allowed", 
   assert.doesNotMatch(await renderMenu(t, { isRecording: true }), /startMeetingRecording/);
   assert.doesNotMatch(await renderMenu(t, { meetingAllowed: false }), /startMeetingRecording/);
 });
+
+test("the command menu offers Open app button", async (t) => {
+  assert.match(await renderMenu(t, { onOpenApp: () => {} }), /openApp/);
+});

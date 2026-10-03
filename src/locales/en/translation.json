@@ -3878,7 +3878,8 @@
       "hideForNow": "Hide for now",
       "askAssistant": "Ask assistant",
       "busyRecording": "Finish the current dictation first",
-      "startMeetingRecording": "Start meeting recording"
+      "startMeetingRecording": "Start meeting recording",
+      "openApp": "Open app"
     }
   },
   "dictationAgent": {

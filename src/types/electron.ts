@@ -2027,6 +2027,7 @@ declare global {
       ) => () => void;
 
       // Window control operations
+      openControlPanel?: () => Promise<void>;
       windowMinimize: () => Promise<void>;
       windowMaximize: () => Promise<void>;
       windowClose: () => Promise<void>;

@@ -786,6 +786,11 @@ export default function App() {
                 setIsCommandMenuOpen(false);
                 void window.electronAPI?.startManualMeeting?.();
               }}
+              onOpenApp={() => {
+                setIsCommandMenuOpen(false);
+                setWindowInteractivity(false);
+                void window.electronAPI?.openControlPanel?.();
+              }}
               onHide={() => {
                 setIsCommandMenuOpen(false);
                 setWindowInteractivity(false);

@@ -13,6 +13,7 @@ interface PillCommandMenuProps {
   onToggleListening: () => void;
   onAskAssistant: () => void;
   onStartMeeting: () => void;
+  onOpenApp?: () => void;
   onHide: () => void;
   onClose: () => void;
 }
@@ -32,6 +33,7 @@ export function PillCommandMenu({
   onToggleListening,
   onAskAssistant,
   onStartMeeting,
+  onOpenApp,
   onHide,
   onClose,
 }: PillCommandMenuProps): React.JSX.Element {
@@ -102,6 +104,17 @@ export function PillCommandMenu({
             onClick={onStartMeeting}
           >
             {t("app.commandMenu.startMeetingRecording")}
+          </button>
+        </>
+      )}
+      {onOpenApp && (
+        <>
+          <div className="h-px bg-border" />
+          <button
+            className="w-full px-3 py-2 text-start text-sm hover:bg-muted focus:bg-muted focus:outline-none"
+            onClick={onOpenApp}
+          >
+            {t("app.commandMenu.openApp")}
           </button>
         </>
       )}

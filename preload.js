@@ -518,6 +518,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("save-note-speaker-embeddings", noteId, embeddings),
 
   // Window control functions
+  openControlPanel: () => ipcRenderer.invoke("open-control-panel"),
   windowMinimize: () => ipcRenderer.invoke("window-minimize"),
   windowMaximize: () => ipcRenderer.invoke("window-maximize"),
   windowClose: () => ipcRenderer.invoke("window-close"),

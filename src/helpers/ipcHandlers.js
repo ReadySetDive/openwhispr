@@ -1410,6 +1410,10 @@ class IPCHandlers {
       return testProviderConnection(config);
     });
 
+    ipcMain.handle("open-control-panel", async () => {
+      await this.windowManager.createControlPanelWindow();
+    });
+
     ipcMain.handle("window-minimize", () => {
       if (this.windowManager.controlPanelWindow) {
         this.windowManager.controlPanelWindow.minimize();
