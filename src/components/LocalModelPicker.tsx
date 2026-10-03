@@ -266,10 +266,12 @@ export default function LocalModelPicker({
         <div className="space-y-2">
           {activeModels.map((model) => {
             const status = downloads[model.id];
+            const isVision = status?.isVision || downloadingVisionModels.has(model.id);
+            const modelName = isVision ? `${model.name} (Vision Add-on)` : model.name;
             return (
               <DownloadProgressBar
                 key={model.id}
-                modelName={model.name}
+                modelName={modelName}
                 progress={{
                   percentage: status.progress,
                   downloadedBytes: status.downloadedBytes,

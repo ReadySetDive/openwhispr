@@ -35,6 +35,7 @@ interface ActiveDownload {
   percentage: number;
   installing?: boolean;
   error?: string;
+  isVision?: boolean;
 }
 
 function downloadKey(kind: DownloadKind, id: string) {
@@ -60,9 +61,12 @@ function downloadDisplay(download: ActiveDownload) {
       provider: getASRModelOrganization(download.id),
     };
   }
-  const localModel = modelRegistry.getModel(download.id);
+  const isVision = download.isVision || download.id.endsWith(":vision");
+  const actualModelId = download.id.endsWith(":vision") ? download.id.slice(0, -7) : download.id;
+  const localModel = modelRegistry.getModel(actualModelId);
+  const baseName = localModel?.model.name ?? actualModelId;
   return {
-    name: localModel?.model.name ?? download.id,
+    name: isVision ? `${baseName} (Vision Add-on)` : baseName,
     provider: localModel?.provider.id ?? "local",
   };
 }
@@ -253,6 +257,7 @@ export default function BackgroundModelDownloadTray({
       type: "progress" | "installing" | "complete" | "error";
       percentage: number | undefined;
       error?: string;
+      isVision?: boolean;
     }) => {
       // The required-models onboarding step owns its downloads: it renders its
       // own per-row progress, and cancelling from here cannot stick because the
@@ -295,6 +300,7 @@ export default function BackgroundModelDownloadTray({
             percentage: clampPercentage(event.percentage),
             installing: event.type === "installing",
             error: event.type === "error" ? event.error : undefined,
+            isVision: event.isVision ?? current[key]?.isVision,
           },
         };
       });
@@ -319,6 +325,7 @@ export default function BackgroundModelDownloadTray({
         type: data.type ?? "progress",
         percentage: data.type === "error" ? 0 : data.progress,
         error: data.type === "error" ? data.error : undefined,
+        isVision: data.isVision,
       });
 
     const disposeWhisper = window.electronAPI?.onWhisperDownloadProgress?.((_event, data) =>

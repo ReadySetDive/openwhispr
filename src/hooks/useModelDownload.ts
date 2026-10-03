@@ -260,6 +260,7 @@ export function useModelDownload({
         downloadedBytes: data.downloadedSize || 0,
         totalBytes: data.totalSize || 0,
         sequence: data.sequence || 0,
+        isVision: data.isVision,
       });
     },
     [handleTerminalDownload, updateDownload]

@@ -305,18 +305,22 @@ export function ChatModelSelector({
 
       {activeDownloads.length > 0 && (
         <div className="w-full max-w-xs space-y-1">
-          {activeDownloads.map(([modelId, status]) => (
-            <DownloadProgressBar
-              key={modelId}
-              modelName={localModels.find((m) => m.id === modelId)?.name || modelId}
-              progress={{
-                percentage: status.progress,
-                downloadedBytes: status.downloadedBytes,
-                totalBytes: status.totalBytes,
-              }}
-              isInstalling={status.phase === "installing"}
-            />
-          ))}
+          {activeDownloads.map(([modelId, status]) => {
+            const baseName = localModels.find((m) => m.id === modelId)?.name || modelId;
+            const modelName = status.isVision ? `${baseName} (Vision Add-on)` : baseName;
+            return (
+              <DownloadProgressBar
+                key={modelId}
+                modelName={modelName}
+                progress={{
+                  percentage: status.progress,
+                  downloadedBytes: status.downloadedBytes,
+                  totalBytes: status.totalBytes,
+                }}
+                isInstalling={status.phase === "installing"}
+              />
+            );
+          })}
         </div>
       )}
     </div>
