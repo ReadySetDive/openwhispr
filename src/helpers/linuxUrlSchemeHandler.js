@@ -24,7 +24,7 @@ function buildHandlerEntry(protocol, launchCommand) {
   return [
     "[Desktop Entry]",
     "Type=Application",
-    "Name=OpenWhispr",
+    "Name=localwhispr",
     `Exec=${[...launchCommand.map(formatExecArg), "%U"].join(" ")}`,
     "Terminal=false",
     "NoDisplay=true",

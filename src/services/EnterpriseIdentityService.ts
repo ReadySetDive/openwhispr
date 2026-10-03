@@ -25,7 +25,7 @@ export async function getManagedEnterpriseConfig(
       success: false,
       status: "error",
       code: "MANAGED_ENTERPRISE_UNSUPPORTED",
-      error: "Managed enterprise AI requires a newer version of OpenWhispr.",
+      error: "Managed enterprise AI requires a newer version of localwhispr.",
     };
   }
   // The IPC boundary type carries scope names as bare strings (see

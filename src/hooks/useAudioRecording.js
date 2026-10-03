@@ -574,17 +574,12 @@ export const useAudioRecording = (toast, options = {}) => {
         setIsStopping(false);
         onDemoEventRef.current?.({
           kind: demoKindRef.current,
-          status: "error",
-          message: t("hooks.audioRecording.noAudio.title"),
+          status: "idle",
         });
         window.electronAPI?.hideDictationPreview?.();
         if (getSettings().pauseMediaOnDictation) {
           window.electronAPI?.resumeMediaPlayback?.();
         }
-        showDictationError({
-          title: t("hooks.audioRecording.noAudio.title"),
-          description: t("hooks.audioRecording.noAudio.description"),
-        });
       },
       onPartialTranscript: (text) => {
         onDemoEventRef.current?.({ kind: demoKindRef.current, status: "partial", text });
@@ -617,10 +612,6 @@ export const useAudioRecording = (toast, options = {}) => {
 
           if (!transcribedText) {
             window.electronAPI?.hideDictationPreview?.();
-            showDictationError({
-              title: t("hooks.audioRecording.noAudio.title"),
-              description: t("hooks.audioRecording.noAudio.description"),
-            });
             return;
           }
 

@@ -34,7 +34,7 @@
         "description": "تعذر تفريغ جزء من التسجيل."
       },
       "errorDescriptions": {
-        "sessionExpired": "جلسة OpenWhispr Cloud الخاصة بك غير متاحة. يرجى تسجيل الدخول مرة أخرى من الإعدادات.",
+        "sessionExpired": "جلسة localwhispr Cloud الخاصة بك غير متاحة. يرجى تسجيل الدخول مرة أخرى من الإعدادات.",
         "offline": "أنت غير متصل بالإنترنت. يتطلب التفريغ السحابي اتصالًا بالإنترنت.",
         "dailyLimitReached": "لقد وصلت إلى حد التفريغ اليومي. حاول مرة أخرى غدًا أو قم بترقية خطتك.",
         "providerRateLimited": "قام مزود التفريغ بتقييد معدل الطلب. انتظر لحظة وحاول مرة أخرى.",
@@ -59,12 +59,12 @@
       },
       "selectionEditing": {
         "notAppliedTitle": "لم يتم تطبيق تعديل التحديد",
-        "changed": "تم تغيير النص المحدد أو التطبيق المستهدف أثناء قيام OpenWhispr بالمعالجة. لم يتم استبدال أي شيء.",
+        "changed": "تم تغيير النص المحدد أو التطبيق المستهدف أثناء قيام localwhispr بالمعالجة. لم يتم استبدال أي شيء.",
         "expired": "استغرق تعديل التحديد وقتًا طويلًا وانتهت صلاحيته. حدد النص وحاول مرة أخرى.",
-        "pasteFailed": "قام OpenWhispr بإنشاء التعديل ولكنه لم يتمكن من استبدال النص المحدد.",
-        "modifiersHeld": "أنشأ OpenWhispr التعديل، لكن مفتاح تعديل (مثل Ctrl أو Shift) كان لا يزال مضغوطًا، لذلك لم يتم تطبيقه. التعديل موجود في الحافظة.",
-        "modifiersHeldClipboardFailed": "أنشأ OpenWhispr التعديل، لكن مفتاح تعديل (مثل Ctrl أو Shift) كان لا يزال مضغوطًا، لذلك لم يتم تطبيقه، ولم يتمكن من نسخه إلى الحافظة أيضًا.",
-        "unavailable": "لم يتمكن OpenWhispr من قراءة النص المحدد بأمان. تحقق من أذونات إمكانية الوصول أو أتمتة الإدخال وحاول مرة أخرى.",
+        "pasteFailed": "قام localwhispr بإنشاء التعديل ولكنه لم يتمكن من استبدال النص المحدد.",
+        "modifiersHeld": "أنشأ localwhispr التعديل، لكن مفتاح تعديل (مثل Ctrl أو Shift) كان لا يزال مضغوطًا، لذلك لم يتم تطبيقه. التعديل موجود في الحافظة.",
+        "modifiersHeldClipboardFailed": "أنشأ localwhispr التعديل، لكن مفتاح تعديل (مثل Ctrl أو Shift) كان لا يزال مضغوطًا، لذلك لم يتم تطبيقه، ولم يتمكن من نسخه إلى الحافظة أيضًا.",
+        "unavailable": "لم يتمكن localwhispr من قراءة النص المحدد بأمان. تحقق من أذونات إمكانية الوصول أو أتمتة الإدخال وحاول مرة أخرى.",
         "tooLarge": "التحديد كبير جدًا بحيث لا يمكن تعديله بأمان. حدد 6,000 حرف أو أقل.",
         "reasoningFailed": "لم يتمكن الذكاء الاصطناعي من إكمال تعديل التحديد. لم يتم تغيير نصك الأصلي."
       },
@@ -80,8 +80,8 @@
       },
       "pastePermission": {
         "title": "السماح باللصق التلقائي",
-        "description": "فعّل OpenWhispr في إعدادات النظام ← الخصوصية والأمن ← تسهيلات الاستخدام.",
-        "settingsFailed": "تعذّر فتح الإعدادات. افتح إعدادات النظام ← الخصوصية والأمن ← تسهيلات الاستخدام وفعّل OpenWhispr.",
+        "description": "فعّل localwhispr في إعدادات النظام ← الخصوصية والأمن ← تسهيلات الاستخدام.",
+        "settingsFailed": "تعذّر فتح الإعدادات. افتح إعدادات النظام ← الخصوصية والأمن ← تسهيلات الاستخدام وفعّل localwhispr.",
         "manualPaste": "انسخ النص أدناه، ثم اضغط على {{shortcut}} للصقه.",
         "openSettings": "فتح الإعدادات",
         "copyToClipboard": "نسخ إلى الحافظة",
@@ -161,7 +161,7 @@
       "micErrors": {
         "accessFailed": "فشل الوصول إلى الميكروفون. يرجى المحاولة مرة أخرى.",
         "noMicrophones": "لم يتم اكتشاف أي ميكروفونات. قم بتوصيل أو تحديد ميكروفون في {{settingsPath}}.",
-        "permissionDenied": "تم رفض الإذن. افتح {{privacyPath}} واسمح لـ OpenWhispr.",
+        "permissionDenied": "تم رفض الإذن. افتح {{privacyPath}} واسمح لـ localwhispr.",
         "couldNotStart": "تعذر بدء تشغيل الميكروفون المحدد. اختر جهاز إدخال في {{settingsPath}}، ثم أعد تشغيل الاختبار.",
         "noActiveInput": "لم يتم العثور على إدخال صوتي نشط. اختر ميكروفونًا في {{settingsPath}}.",
         "unknown": "فشل الوصول إلى الميكروفون: {{error}}. حدد جهاز إدخال مختلفًا وحاول مرة أخرى.",
@@ -190,8 +190,8 @@
         "accessibilityNeeded": "يرجى منح أذونات تسهيلات الاستخدام في إعدادات النظام لتمكين اللصق التلقائي للنص.",
         "windowsReady": "لا يتطلب Windows أذونات خاصة للصق التلقائي. أنت جاهز للبدء!",
         "linuxReadyWithMethod": "اللصق التلقائي متاح باستخدام {{method}}. أنت جاهز للبدء!",
-        "waylandClipboardMode": "اللصق التلقائي غير متوفر في جلسة Wayland هذه. سيقوم OpenWhispr بنسخ النص إلى الحافظة الخاصة بك ويمكنك لصقه باستخدام Ctrl+V.",
-        "optionalPasteTool": "لتمكين اللصق التلقائي، قم بتثبيت {{tool}}:\n\n{{installCmd}}{{waylandNote}}\n\nبدون ذلك، لا يزال بإمكانك استخدام OpenWhispr - سيتم نسخ النص إلى الحافظة الخاصة بك ويمكنك لصقه باستخدام Ctrl+V."
+        "waylandClipboardMode": "اللصق التلقائي غير متوفر في جلسة Wayland هذه. سيقوم localwhispr بنسخ النص إلى الحافظة الخاصة بك ويمكنك لصقه باستخدام Ctrl+V.",
+        "optionalPasteTool": "لتمكين اللصق التلقائي، قم بتثبيت {{tool}}:\n\n{{installCmd}}{{waylandNote}}\n\nبدون ذلك، لا يزال بإمكانك استخدام localwhispr - سيتم نسخ النص إلى الحافظة الخاصة بك ويمكنك لصقه باستخدام Ctrl+V."
       },
       "alerts": {
         "accessibilityNeeded": "أذونات تسهيلات الاستخدام مطلوبة! يرجى منحها في إعدادات النظام."
@@ -204,7 +204,7 @@
         "defaultPasteTool": "xdotool",
         "xdotoolXwayland": "xdotool (تطبيقات XWayland)"
       },
-      "accessibilityTestText": "اختبار تسهيلات الاستخدام لـ OpenWhispr",
+      "accessibilityTestText": "اختبار تسهيلات الاستخدام لـ localwhispr",
       "warning": {
         "messages": {
           "macos": "تحقق من إعدادات الصوت (Sound) لتحديد جهاز الإدخال الخاص بك",
@@ -449,7 +449,7 @@
           "modelNotFound": "تعذر على AWS Bedrock العثور على النموذج المحدد في المنطقة {{region}}. تحقق من معرّف النموذج ومن توفره في تلك المنطقة.",
           "configurationRejected": "رفضت AWS Bedrock تهيئة النموذج للمنطقة {{region}}. تحقق من معرّف النموذج وملف تعريف الاستدلال والمنطقة.",
           "notConfigured": "لم يتم تكوين AWS Bedrock بشكل صحيح. تحقق من المنطقة وبيانات اعتماد AWS.",
-          "serviceUnavailable": "خدمة AWS Bedrock غير متاحة مؤقتًا بسبب ارتفاع الطلب. هذه مشكلة في خدمة AWS وليست انقطاعًا في OpenWhispr. يُرجى المحاولة مرة أخرى بعد بضع دقائق.",
+          "serviceUnavailable": "خدمة AWS Bedrock غير متاحة مؤقتًا بسبب ارتفاع الطلب. هذه مشكلة في خدمة AWS وليست انقطاعًا في localwhispr. يُرجى المحاولة مرة أخرى بعد بضع دقائق.",
           "throttled": "تقيّد AWS Bedrock الطلبات مؤقتًا لأنها تتلقى عددًا كبيرًا منها. انتظر لحظة وحاول مرة أخرى. إذا استمر ذلك، فاطلب من مسؤول AWS التحقق من استخدام Bedrock وحصصها.",
           "timeout": "لم تستجب AWS Bedrock ضمن المهلة. حاول مرة أخرى. إذا استمر ذلك، فتحقق من اتصالك بالإنترنت وحالة خدمة AWS Bedrock.",
           "network": "تعذر الوصول إلى AWS Bedrock. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.",
@@ -490,13 +490,13 @@
   "controlPanel": {
     "updateRequiredByOrg": {
       "title": "التحديث مطلوب",
-      "description": "تتطلب مؤسستك إصدار OpenWhispr {{version}} أو أحدث. يرجى تحديث التطبيق."
+      "description": "تتطلب مؤسستك إصدار localwhispr {{version}} أو أحدث. يرجى تحديث التطبيق."
     },
     "update": {
       "readyTitle": "التحديث جاهز للتثبيت",
       "readyDescription": "انقر فوق «تثبيت التحديث» لإعادة التشغيل باستخدام أحدث إصدار.",
       "installTitle": "تثبيت التحديث",
-      "installDescription": "سيتم إعادة تشغيل OpenWhispr لتطبيق التحديث. سيتم حفظ أي عمل قيد التقدم.",
+      "installDescription": "سيتم إعادة تشغيل localwhispr لتطبيق التحديث. سيتم حفظ أي عمل قيد التقدم.",
       "couldNotInstallTitle": "تعذر تثبيت التحديث",
       "couldNotInstallDescription": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
       "couldNotDownloadTitle": "تعذر تنزيل التحديث",
@@ -511,7 +511,7 @@
     },
     "accessibilityMissing": {
       "title": "أذونات تسهيلات الاستخدام مطلوبة",
-      "description": "لقد اكتشفنا أن OpenWhispr يحتاج إلى أذونات تسهيلات الاستخدام للعمل بشكل صحيح. يرجى تمكينها أدناه."
+      "description": "لقد اكتشفنا أن localwhispr يحتاج إلى أذونات تسهيلات الاستخدام للعمل بشكل صحيح. يرجى تمكينها أدناه."
     },
     "billing": {
       "pastDueTitle": "لم نتمكن من معالجة دفعتك",
@@ -602,7 +602,7 @@
     },
     "cloudNudge": {
       "title": "تم تسجيل دخولك",
-      "description": "لا يزال الإملاء يعمل على إعدادك الخاص. يمكنك التبديل إلى OpenWhispr Cloud في أي وقت.",
+      "description": "لا يزال الإملاء يعمل على إعدادك الخاص. يمكنك التبديل إلى localwhispr Cloud في أي وقت.",
       "action": "فتح الإعدادات"
     }
   },
@@ -621,7 +621,7 @@
       "disconnectConfirm": "هل تريد قطع اتصال {{email}}؟",
       "disconnectDescription": "لن يتم تسجيل ملاحظات الاجتماع من هذا التقويم بعد الآن.",
       "systemAudioRequired": "إذن صوت النظام مطلوب",
-      "systemAudioDescription": "لتفريغ الاجتماعات، يحتاج OpenWhispr إلى إذن صوت النظام لالتقاط صوت المشاركين الآخرين. نحن لا نسجل شاشتك أبدًا. سيتم توجيهك إلى إعدادات النظام لتمكين ذلك.",
+      "systemAudioDescription": "لتفريغ الاجتماعات، يحتاج localwhispr إلى إذن صوت النظام لالتقاط صوت المشاركين الآخرين. نحن لا نسجل شاشتك أبدًا. سيتم توجيهك إلى إعدادات النظام لتمكين ذلك.",
       "openSettings": "فتح إعدادات النظام",
       "connectFailed": "فشل الاتصال",
       "connectFailedDescription": "حدث خطأ ما أثناء الاتصال بتقويم Google. يرجى المحاولة مرة أخرى."
@@ -649,10 +649,10 @@
       "disconnectConfirm": "هل تريد قطع اتصال تقويم Apple؟",
       "disconnectDescription": "لن يتم تسجيل ملاحظات الاجتماع من تقويم Apple الخاص بك بعد الآن.",
       "permissionDenied": "الوصول إلى التقويم مطلوب",
-      "permissionDeniedDescription": "يحتاج OpenWhispr إلى الوصول إلى التقويم لاكتشاف الاجتماعات. قم بتمكين OpenWhispr في إعدادات النظام ضمن الخصوصية والأمان ← التقاويم.",
+      "permissionDeniedDescription": "يحتاج localwhispr إلى الوصول إلى التقويم لاكتشاف الاجتماعات. قم بتمكين localwhispr في إعدادات النظام ضمن الخصوصية والأمان ← التقاويم.",
       "openSettings": "فتح إعدادات النظام",
       "connectFailed": "فشل الاتصال",
-      "connectFailedDescription": "حدث خطأ ما أثناء الاتصال بتطبيق Calendar.app. يرجى إعادة تشغيل OpenWhispr والمحاولة مرة أخرى."
+      "connectFailedDescription": "حدث خطأ ما أثناء الاتصال بتطبيق Calendar.app. يرجى إعادة تشغيل localwhispr والمحاولة مرة أخرى."
     },
     "api": {
       "description": "إدارة مفاتيح API للوصول البرمجي",
@@ -662,11 +662,11 @@
     },
     "mcp": {
       "description": "الدردشة والبحث والعمل مع ملاحظاتك داخل Claude وChatGPT وCursor.",
-      "step1": "في أداة الذكاء الاصطناعي الخاصة بك، أضف OpenWhispr MCP باستخدام عنوان URL العام",
+      "step1": "في أداة الذكاء الاصطناعي الخاصة بك، أضف localwhispr MCP باستخدام عنوان URL العام",
       "step2": "أنشئ مفتاح API بالنطاقات (scopes) التي تحتاجها.",
       "step3": "الصق المفتاح في ترويسة Authorization للاتصال.",
       "learnMore": "اعرف المزيد",
-      "proRequired": "قم بالترقية إلى خطة مدفوعة لتوصيل OpenWhispr بـ Claude وChatGPT وCursor.",
+      "proRequired": "قم بالترقية إلى خطة مدفوعة لتوصيل localwhispr بـ Claude وChatGPT وCursor.",
       "worksWith": "يعمل مع",
       "copyUrl": "نسخ عنوان URL لـ MCP",
       "copied": "تم النسخ"
@@ -681,7 +681,7 @@
       "local": {
         "label": "محلي (Local)",
         "freeBadge": "مجاني",
-        "description": "قراءة ملاحظاتك المحلية مباشرة. لا يلزم تسجيل دخول أو مفتاح API — يعمل أثناء تشغيل OpenWhispr."
+        "description": "قراءة ملاحظاتك المحلية مباشرة. لا يلزم تسجيل دخول أو مفتاح API — يعمل أثناء تشغيل localwhispr."
       },
       "cloud": {
         "label": "سحابي (Cloud)",
@@ -701,7 +701,7 @@
       "upgrade": "ترقية"
     },
     "notABot": {
-      "description": "يلتقط OpenWhispr الصوت مباشرة من نظامك — فهو لا ينضم أبدًا إلى اجتماعاتك كمشارك. ما عليك سوى ربط التقويم الخاص بك وتدوين الملاحظات كالمعتاد."
+      "description": "يلتقط localwhispr الصوت مباشرة من نظامك — فهو لا ينضم أبدًا إلى اجتماعاتك كمشارك. ما عليك سوى ربط التقويم الخاص بك وتدوين الملاحظات كالمعتاد."
     },
     "nav": {
       "label": "أقسام التكاملات",
@@ -755,7 +755,7 @@
         "reconnect_needed": "يلزم إعادة ربط Slack من الإعدادات.",
         "connection_changed": "تغيّر اتصال Slack قبل الإرسال، لذا لم يُرسل شيء.",
         "rate_limited": "Slack مشغول حاليًا. حاول مرة أخرى بعد قليل.",
-        "missing_scope": "لا يملك OpenWhispr إذنًا للنشر هناك. أعد ربط Slack من الإعدادات.",
+        "missing_scope": "لا يملك localwhispr إذنًا للنشر هناك. أعد ربط Slack من الإعدادات.",
         "msg_too_long": "الرسالة طويلة جدًا بالنسبة لـ Slack (12,000 حرف كحد أقصى بعد التنسيق).",
         "no_text": "الرسالة فارغة.",
         "network": "تعذّر الوصول إلى Slack. لم يُرسل شيء.",
@@ -770,9 +770,9 @@
           "connection_changed": "تغيّر اتصال GitHub قبل النشر، لذا لم يُنشر شيء.",
           "credential_save_failed": "تعذّر حفظ تسجيل الدخول إلى GitHub على هذا الكمبيوتر. لم يُنشر شيء. حاول مرة أخرى.",
           "generic": "حدث خطأ ما. لم يُنشر شيء على GitHub.",
-          "not_installed": "تطبيق OpenWhispr على GitHub غير مثبّت في هذا المستودع. أضفه من الإعدادات. لم يُنشر شيء.",
-          "repo_unlisted": "تعذّر التأكد من أن تطبيق OpenWhispr على GitHub مثبّت في هذا المستودع. تحقّق من اسم المستودع. لم يُنشر شيء.",
-          "no_repositories": "لم يتم اختيار مستودعات لتطبيق OpenWhispr على GitHub بعد. اخترها من الإعدادات. لم يُنشر شيء.",
+          "not_installed": "تطبيق localwhispr على GitHub غير مثبّت في هذا المستودع. أضفه من الإعدادات. لم يُنشر شيء.",
+          "repo_unlisted": "تعذّر التأكد من أن تطبيق localwhispr على GitHub مثبّت في هذا المستودع. تحقّق من اسم المستودع. لم يُنشر شيء.",
+          "no_repositories": "لم يتم اختيار مستودعات لتطبيق localwhispr على GitHub بعد. اخترها من الإعدادات. لم يُنشر شيء.",
           "forbidden": "ليس لديك إذن للقيام بذلك في هذا المستودع. لم يُنشر شيء.",
           "not_found": "تعذّر العثور على المشكلة أو طلب السحب. لم يُنشر شيء.",
           "issues_disabled": "المشكلات متوقفة في هذا المستودع. لم يُنشر شيء.",
@@ -817,7 +817,7 @@
           "wrong_workspace": "هذه المشكلة في مساحة عمل Linear أخرى. لم يُرسل شيء.",
           "invalid_reference": "هذه ليست مشكلة في Linear. لم يُرسل شيء.",
           "refused": "رفض Linear الطلب. لم يُرسل شيء.",
-          "unknown_action": "لا يستطيع OpenWhispr فعل ذلك في Linear. لم يُرسل شيء.",
+          "unknown_action": "لا يستطيع localwhispr فعل ذلك في Linear. لم يُرسل شيء.",
           "generic": "حدث خطأ ما. لم يُرسل شيء إلى Linear."
         }
       },
@@ -913,19 +913,19 @@
         "oauth_denied": "لم يتم ربط Slack لأن الإذن لم يُمنح.",
         "oauth_timeout": "استغرق الربط وقتًا طويلاً. حاول مرة أخرى.",
         "oauth_state_mismatch": "رابط تسجيل الدخول هذا كان قديمًا. حاول مرة أخرى.",
-        "ports_busy": "يستخدم تطبيق آخر المنافذ التي يحتاجها OpenWhispr للربط. أغلقه وحاول مرة أخرى.",
+        "ports_busy": "يستخدم تطبيق آخر المنافذ التي يحتاجها localwhispr للربط. أغلقه وحاول مرة أخرى.",
         "token_exchange_failed": "لم يكمل Slack عملية الربط. حاول مرة أخرى.",
         "not_configured": "Slack غير متاح في هذا الإصدار.",
         "connection_changed": "تغيّر حسابك أو اتصال Slack أثناء الربط. حاول مرة أخرى.",
-        "signed_out": "سجّل الدخول إلى OpenWhispr لربط Slack.",
+        "signed_out": "سجّل الدخول إلى localwhispr لربط Slack.",
         "policy_blocked": "أوقفت مؤسستك تشغيل الموصلات.",
         "policy_unavailable": "تعذّر التحقق من إعدادات مؤسستك. حاول مرة أخرى."
       },
       "browser": {
         "connectedTitle": "تم توصيل Slack",
-        "connectedBody": "يمكنك إغلاق هذا التبويب والعودة إلى OpenWhispr.",
+        "connectedBody": "يمكنك إغلاق هذا التبويب والعودة إلى localwhispr.",
         "failedTitle": "لم يتم توصيل Slack",
-        "failedBody": "عد إلى OpenWhispr للمحاولة مرة أخرى."
+        "failedBody": "عد إلى localwhispr للمحاولة مرة أخرى."
       }
     },
     "github": {
@@ -940,7 +940,7 @@
       "connectedAs_unknown": "متصل بصفتك {{account}}",
       "needsReconnect": "يلزم إعادة ربط GitHub.",
       "reviewOnGithub": "المراجعة على GitHub",
-      "disconnectedHint": "تم قطع الربط على هذا الكمبيوتر. يحتفظ GitHub بتفويض OpenWhispr إلى أن تزيله من هناك.",
+      "disconnectedHint": "تم قطع الربط على هذا الكمبيوتر. يحتفظ GitHub بتفويض localwhispr إلى أن تزيله من هناك.",
       "errors": {
         "connect_failed": "تعذّر ربط GitHub. حاول مرة أخرى.",
         "disconnect_failed": "تعذّر قطع ربط GitHub. حاول مرة أخرى.",
@@ -948,7 +948,7 @@
         "token_exchange_failed": "لم يكمل GitHub عملية الربط. حاول مرة أخرى.",
         "not_configured": "GitHub غير متاح في هذا الإصدار.",
         "connection_changed": "تغيّر حسابك أو اتصال GitHub أثناء الربط. حاول مرة أخرى.",
-        "signed_out": "سجّل الدخول إلى OpenWhispr لربط GitHub.",
+        "signed_out": "سجّل الدخول إلى localwhispr لربط GitHub.",
         "policy_blocked": "أوقفت مؤسستك تشغيل الموصلات.",
         "policy_unavailable": "تعذّر التحقق من إعدادات مؤسستك. حاول مرة أخرى.",
         "code_expired": "انتهت صلاحية الرمز. حاول مرة أخرى.",
@@ -974,32 +974,32 @@
       "connect": "ربط",
       "reconnect": "إعادة الربط",
       "disconnect": "قطع الربط",
-      "connecting": "أكمل الربط في متصفحك… إذا أظهرت Google أن الوصول محظور، فيجب على مسؤول Google في مؤسستك السماح بـ OpenWhispr.",
+      "connecting": "أكمل الربط في متصفحك… إذا أظهرت Google أن الوصول محظور، فيجب على مسؤول Google في مؤسستك السماح بـ localwhispr.",
       "connectedAs": "متصل بصفتك {{account}}",
       "needsReconnect": "يلزم إعادة ربط Gmail.",
-      "grantKept": "تم قطع الاتصال. يستخدم تقويم Google إذن Google نفسه، لذا سيظل OpenWhispr مدرجًا في حسابك على Google حتى تقطع اتصال تقويم Google أيضًا.",
+      "grantKept": "تم قطع الاتصال. يستخدم تقويم Google إذن Google نفسه، لذا سيظل localwhispr مدرجًا في حسابك على Google حتى تقطع اتصال تقويم Google أيضًا.",
       "errors": {
         "connect_failed": "تعذّر ربط Gmail. حاول مرة أخرى.",
         "disconnect_failed": "تعذّر قطع ربط Gmail. حاول مرة أخرى.",
         "oauth_denied": "لم يتم ربط Gmail لأن الإذن لم يُمنح.",
-        "oauth_timeout": "استغرق الربط وقتًا طويلاً. إذا أظهرت Google أن الوصول محظور، فاطلب من مسؤول Google في مؤسستك السماح بـ OpenWhispr. وإلا فحاول مرة أخرى.",
+        "oauth_timeout": "استغرق الربط وقتًا طويلاً. إذا أظهرت Google أن الوصول محظور، فاطلب من مسؤول Google في مؤسستك السماح بـ localwhispr. وإلا فحاول مرة أخرى.",
         "oauth_state_mismatch": "رابط تسجيل الدخول هذا كان قديمًا. حاول مرة أخرى.",
-        "ports_busy": "يستخدم تطبيق آخر المنافذ التي يحتاجها OpenWhispr للربط. أغلقه وحاول مرة أخرى.",
+        "ports_busy": "يستخدم تطبيق آخر المنافذ التي يحتاجها localwhispr للربط. أغلقه وحاول مرة أخرى.",
         "token_exchange_failed": "لم يكمل Google عملية الربط. حاول مرة أخرى.",
         "not_configured": "Gmail غير متاح في هذا الإصدار.",
         "connection_changed": "تغيّر حسابك أو اتصال Gmail أثناء الربط. حاول مرة أخرى.",
-        "signed_out": "سجّل الدخول إلى OpenWhispr لربط Gmail.",
+        "signed_out": "سجّل الدخول إلى localwhispr لربط Gmail.",
         "policy_blocked": "أوقفت مؤسستك تشغيل الموصلات.",
         "policy_unavailable": "تعذّر التحقق من إعدادات مؤسستك. حاول مرة أخرى.",
         "permission_not_granted": "لم يتم ربط Gmail لأن إذن إرسال الرسائل الإلكترونية لم يُمنح. أعد الربط واترك هذا الإذن محددًا.",
         "email_not_verified": "لم تتحقق Google من عنوان البريد الإلكتروني لهذا الحساب، لذلك لم يتم ربط Gmail.",
-        "domain_policy": "حظر مسؤول Google في مؤسستك هذا التطبيق. اطلب منه السماح بـ OpenWhispr."
+        "domain_policy": "حظر مسؤول Google في مؤسستك هذا التطبيق. اطلب منه السماح بـ localwhispr."
       },
       "browser": {
         "connectedTitle": "تم توصيل Gmail",
-        "connectedBody": "يمكنك إغلاق هذا التبويب والعودة إلى OpenWhispr.",
+        "connectedBody": "يمكنك إغلاق هذا التبويب والعودة إلى localwhispr.",
         "failedTitle": "لم يتم توصيل Gmail",
-        "failedBody": "عد إلى OpenWhispr للمحاولة مرة أخرى."
+        "failedBody": "عد إلى localwhispr للمحاولة مرة أخرى."
       }
     },
     "linear": {
@@ -1017,20 +1017,20 @@
         "oauth_denied": "لم يتم ربط Linear لأن الإذن لم يُمنح.",
         "oauth_timeout": "استغرق الربط وقتًا طويلاً. حاول مرة أخرى.",
         "oauth_state_mismatch": "رابط تسجيل الدخول هذا كان قديمًا. حاول مرة أخرى.",
-        "ports_busy": "يستخدم تطبيق آخر المنافذ التي يحتاجها OpenWhispr للربط. أغلقه وحاول مرة أخرى.",
+        "ports_busy": "يستخدم تطبيق آخر المنافذ التي يحتاجها localwhispr للربط. أغلقه وحاول مرة أخرى.",
         "token_exchange_failed": "لم يكمل Linear عملية الربط. حاول مرة أخرى.",
         "not_configured": "Linear غير متاح في هذا الإصدار.",
         "connection_changed": "تغيّر حسابك أو اتصال Linear أثناء الربط. حاول مرة أخرى.",
-        "signed_out": "سجّل الدخول إلى OpenWhispr لربط Linear.",
+        "signed_out": "سجّل الدخول إلى localwhispr لربط Linear.",
         "policy_blocked": "أوقفت مؤسستك تشغيل الموصلات.",
         "policy_unavailable": "تعذّر التحقق من إعدادات مؤسستك. حاول مرة أخرى.",
         "permission_not_granted": "لم يتم ربط Linear لأن بعض الأذونات لم تُمنح. أعد الربط واسمح بها جميعًا."
       },
       "browser": {
         "connectedTitle": "تم توصيل Linear",
-        "connectedBody": "يمكنك إغلاق هذا التبويب والعودة إلى OpenWhispr.",
+        "connectedBody": "يمكنك إغلاق هذا التبويب والعودة إلى localwhispr.",
         "failedTitle": "لم يتم توصيل Linear",
-        "failedBody": "عد إلى OpenWhispr للمحاولة مرة أخرى."
+        "failedBody": "عد إلى localwhispr للمحاولة مرة أخرى."
       },
       "notes": {
         "priority": {
@@ -1110,8 +1110,8 @@
           "connection_changed": "تغيّر اتصال GitHub.",
           "credential_save_failed": "تعذّر حفظ تسجيل الدخول إلى GitHub على هذا الكمبيوتر.",
           "generic": "لم ينجح ذلك على GitHub.",
-          "not_installed": "تطبيق OpenWhispr على GitHub غير مثبّت هناك.",
-          "repo_unlisted": "تعذّر التأكد من أن تطبيق OpenWhispr على GitHub مثبّت هناك.",
+          "not_installed": "تطبيق localwhispr على GitHub غير مثبّت هناك.",
+          "repo_unlisted": "تعذّر التأكد من أن تطبيق localwhispr على GitHub مثبّت هناك.",
           "no_repositories": "لم يتم اختيار مستودعات GitHub بعد.",
           "forbidden": "لا يوجد إذن في هذا المستودع.",
           "not_found": "تعذّر العثور على تلك المشكلة أو طلب السحب.",
@@ -1234,7 +1234,7 @@
       "emailRequired": "أدخل بريد العمل الخاص بك لاستخدام SSO.",
       "failed": "فشل تسجيل الدخول الموحد. يرجى المحاولة مرة أخرى.",
       "companySignInTitle": "استخدم تسجيل الدخول الخاص بشركتك",
-      "requiredDescription": "يتطلب {{domain}} استخدام SSO للوصول إلى OpenWhispr.",
+      "requiredDescription": "يتطلب {{domain}} استخدام SSO للوصول إلى localwhispr.",
       "availableDescription": "حساب {{domain}} الخاص بك جاهز لتسجيل الدخول الموحد للشركة.",
       "useEmailInstead": "استخدم البريد الإلكتروني وكلمة المرور بدلًا من ذلك",
       "workEmailLabel": "بريد العمل الإلكتروني",
@@ -1248,7 +1248,7 @@
       "protocolUnavailable": "تسجيل الدخول عبر المتصفح غير متوفر — أعد تسجيل بروتوكول openwhispr:// في إعدادات التطبيقات الافتراضية بنظامك."
     },
     "welcomeSubtitle": "قوة صوتك. بشروطك.",
-    "welcomeTitle": "مرحبًا بك في OpenWhispr",
+    "welcomeTitle": "مرحبًا بك في localwhispr",
     "sessionExpired": "انتهت الجلسة. يرجى إعادة بدء عملية التسجيل."
   },
   "workspaces": {
@@ -1295,7 +1295,7 @@
     },
     "join": {
       "title": "انضم إلى فريقك",
-      "domainTitle": "فريقك موجود على OpenWhispr",
+      "domainTitle": "فريقك موجود على localwhispr",
       "description": "تحتوي مساحات العمل هذه على شخص من نطاق بريدك الإلكتروني.",
       "invitedDescription": "لقد تمت دعوتك إلى مساحة عمل.",
       "invitedBy": "تمت دعوتك بواسطة {{inviter}} كـ {{role}}",
@@ -1335,7 +1335,7 @@
     "clearTitle": "مسح القاموس؟",
     "clearDescription": "سيؤدي هذا إلى إزالة جميع الكلمات من قاموسك المخصص. لا يمكن التراجع عن هذا الإجراء.",
     "addWord": "إضافة كلمة",
-    "addPlaceholder": "أضف كلمات مفصولة بفواصل — OpenWhispr، Supabase، John Snow، ARR",
+    "addPlaceholder": "أضف كلمات مفصولة بفواصل — localwhispr، Supabase، John Snow، ARR",
     "removeWord": "إزالة {{word}}",
     "clearAll": "مسح الكل",
     "add": "إضافة",
@@ -1370,7 +1370,7 @@
       "duplicate": "يوجد مقتطف بهذه العبارة المفتاحية بالفعل",
       "emptyTitle": "الأشياء التي لا ينبغي أن تضطر إلى قولها",
       "emptyTitleAccent": "مرتين",
-      "emptyDescription": "انطق عبارة مفتاحية وسيستبدلها OpenWhispr بما حفظته — روابط، مقدمات، عبارات ختامية، مطالبات.",
+      "emptyDescription": "انطق عبارة مفتاحية وسيستبدلها localwhispr بما حفظته — روابط، مقدمات، عبارات ختامية، مطالبات.",
       "new": "مقتطف جديد",
       "examples": {
         "linkedinTrigger": "حسابي على LinkedIn",
@@ -1433,7 +1433,7 @@
       "none": "لا شيء",
       "outputLabel": "المخرجات",
       "processing": "جاري المعالجة...",
-      "openwhisprCloud": "OpenWhispr Cloud",
+      "openwhisprCloud": "localwhispr Cloud",
       "providerLabel": "المزود",
       "run": "تشغيل الاختبار",
       "customEndpoint": "نقطة نهاية مخصصة",
@@ -1518,7 +1518,7 @@
   },
   "apiKeysSection": {
     "title": "مفاتيح API",
-    "description": "أنشئ مفاتيح للوصول إلى API الخاص بـ OpenWhispr برمجيًا.",
+    "description": "أنشئ مفاتيح للوصول إلى API الخاص بـ localwhispr برمجيًا.",
     "docsLink": "مستندات API",
     "empty": "لا توجد مفاتيح API بعد",
     "createButton": "إنشاء مفتاح API",
@@ -1634,7 +1634,7 @@
     },
     "tryAgain": "حاول مرة أخرى",
     "card": {
-      "brand": "OpenWhispr",
+      "brand": "localwhispr",
       "signalId": "معرف الإشارة",
       "audioSignature": "توقيعك الصوتي",
       "stop": "إيقاف",
@@ -1654,11 +1654,11 @@
       "visionModelDescription": "توجيه الأوامر التي تتضمن لقطة شاشة إلى نموذج مختلف قادر على الرؤية.",
       "permissionTitle": "تسجيل الشاشة",
       "permissionDescription": "يتطلب macOS إذن تسجيل الشاشة لالتقاط شاشتك.",
-      "relaunchHint": "تم منح إذن تسجيل الشاشة أثناء تشغيل OpenWhispr. قم بإنهاء OpenWhispr وإعادة فتحه لبدء التقاط لقطات الشاشة."
+      "relaunchHint": "تم منح إذن تسجيل الشاشة أثناء تشغيل localwhispr. قم بإنهاء localwhispr وإعادة فتحه لبدء التقاط لقطات الشاشة."
     },
     "modes": {
-      "openwhispr": "OpenWhispr Cloud",
-      "openwhisprDesc": "استخدم المساعد المُدار بواسطة OpenWhispr — لا حاجة لمفتاح API.",
+      "openwhispr": "localwhispr Cloud",
+      "openwhisprDesc": "استخدم المساعد المُدار بواسطة localwhispr — لا حاجة لمفتاح API.",
       "providers": "إحضار مفتاحك الخاص",
       "providersDesc": "اتصل بـ OpenAI أو Anthropic أو Gemini أو Groq باستخدام مفتاح API الخاص بك.",
       "local": "محلي",
@@ -1679,7 +1679,7 @@
       "systemPromptDescription": "تعليمات مخصصة للمساعد",
       "systemPromptPlaceholder": "أدخل مطالبة النظام المخصصة...",
       "modes": {
-        "openwhispr": "OpenWhispr Cloud",
+        "openwhispr": "localwhispr Cloud",
         "providers": "مزودو الخدمات السحابية",
         "local": "محلي",
         "selfHosted": "مستضاف ذاتيًا",
@@ -1787,7 +1787,7 @@
         "invitationActions": "إجراءات الدعوة",
         "resendSent": "تم إرسال الدعوة",
         "resendThrottled": "تم إرسال الدعوة مؤخرًا. حاول مرة أخرى بعد دقيقة.",
-        "syncPrompt": "تحتفظ المشاركة بنسخة من هذه الملاحظة في سحابة OpenWhispr الخاصة بك. لا يراها أحد سواك حتى تختار من تشاركها معه.",
+        "syncPrompt": "تحتفظ المشاركة بنسخة من هذه الملاحظة في سحابة localwhispr الخاصة بك. لا يراها أحد سواك حتى تختار من تشاركها معه.",
         "syncAndShare": "مزامنة الملاحظة",
         "visibility": {
           "label": "من يمكنه الاطلاع",
@@ -1826,11 +1826,11 @@
       "undo": "تراجع",
       "accessibilityMissing": {
         "title": "أذونات تسهيلات الاستخدام مطلوبة",
-        "description": "يحتاج OpenWhispr إلى أذونات تسهيلات الاستخدام لاكتشاف مفتاح الاختصار الخاص بك ولصق النص. يرجى تمكينها في لوحة التحكم."
+        "description": "يحتاج localwhispr إلى أذونات تسهيلات الاستخدام لاكتشاف مفتاح الاختصار الخاص بك ولصق النص. يرجى تمكينها في لوحة التحكم."
       },
       "gpuFallback": {
         "title": "تسريع GPU غير متوفر",
-        "description": "انتقل OpenWhispr إلى استخدام وحدة المعالجة المركزية (CPU) للتفريغ الصوتي.",
+        "description": "انتقل localwhispr إلى استخدام وحدة المعالجة المركزية (CPU) للتفريغ الصوتي.",
         "retry": "إعادة تجربة GPU"
       },
       "gpuPackMigration": {
@@ -1901,7 +1901,7 @@
     "systemAudioRequired": "يلزم إذن «صوت النظام» لالتقاط صوت المشاركين الآخرين.",
     "openSettings": "فتح إعدادات النظام",
     "connectCalendar": "اربط تقويمك",
-    "connectCalendarDescription": "شاهد اجتماعاتك وانضم إليها دون مغادرة OpenWhispr.",
+    "connectCalendarDescription": "شاهد اجتماعاتك وانضم إليها دون مغادرة localwhispr.",
     "connectCalendarButton": "ربط التقويم"
   },
   "notes": {
@@ -2052,7 +2052,7 @@
     },
     "structureIntro": {
       "title": "أين تُحفظ ملاحظاتك",
-      "description": "يفصل OpenWhispr الأفكار الخاصة عن العمل المشترك حتى يرى الأشخاص المناسبون الملاحظات المناسبة.",
+      "description": "يفصل localwhispr الأفكار الخاصة عن العمل المشترك حتى يرى الأشخاص المناسبون الملاحظات المناسبة.",
       "personal": {
         "title": "المساحة الشخصية",
         "description": "أنت فقط من يمكنه رؤية المجلدات والملاحظات هنا."
@@ -2192,7 +2192,7 @@
       "newFolder": "مجلد جديد",
       "folderName": "اسم المجلد",
       "create": "إنشاء",
-      "openwhisprCloud": "OpenWhispr Cloud",
+      "openwhisprCloud": "localwhispr Cloud",
       "custom": "مخصص",
       "selectFolder": "تحديد مجلد",
       "transcriptionFailed": "فشل التفريغ",
@@ -2202,17 +2202,17 @@
       "noProviderDescription": "أضف مفتاح API أو قم بتنزيل نموذج محلي لبدء التفريغ.",
       "noProviderAction": "فتح إعدادات التفريغ",
       "fileTooLarge": "يتجاوز هذا الملف حد الـ 500 ميغابايت.",
-      "paidPlanRequired": "التفريغ السحابي للملفات التي يزيد حجمها عن 25 ميغابايت يتطلب خطة مدفوعة. تتم معالجة الملفات الكبيرة باستخدام OpenWhispr Cloud للحصول على نتائج موثوقة وعالية الجودة.",
+      "paidPlanRequired": "التفريغ السحابي للملفات التي يزيد حجمها عن 25 ميغابايت يتطلب خطة مدفوعة. تتم معالجة الملفات الكبيرة باستخدام localwhispr Cloud للحصول على نتائج موثوقة وعالية الجودة.",
       "largeFileNote": "يتم تقسيم الملفات الكبيرة وتفريغها بالتوازي.",
       "chunkProgress": "جاري تفريغ الجزء {{completed}} من {{total}}...",
       "byokTooLarge": "تدعم مفاتيح API التابعة لجهات خارجية ملفات يصل حجمها إلى {{size}} ميغابايت فقط.",
-      "byokTooLargeDetail": "بالنسبة إلى الملفات التي يزيد حجمها على {{size}} ميغابايت، يتولى OpenWhispr Cloud تقسيمها ومعالجتها بالتوازي وإعادة تجميعها — لتحصل على نتائج موثوقة دون الاعتماد على حدود مزودي الجهات الخارجية.",
-      "byokTooLargeNeedsAccount": "أنشئ حسابًا وقم بالترقية إلى خطة مدفوعة لتفريغ الملفات الأكبر حجمًا باستخدام OpenWhispr Cloud.",
-      "byokTooLargeNeedsUpgrade": "قم بالترقية إلى خطة مدفوعة لتفريغ الملفات الأكبر حجمًا باستخدام OpenWhispr Cloud.",
-      "switchToCloudForLargeFiles": "قم بالتبديل إلى OpenWhispr Cloud لتفريغ هذا الملف.",
+      "byokTooLargeDetail": "بالنسبة إلى الملفات التي يزيد حجمها على {{size}} ميغابايت، يتولى localwhispr Cloud تقسيمها ومعالجتها بالتوازي وإعادة تجميعها — لتحصل على نتائج موثوقة دون الاعتماد على حدود مزودي الجهات الخارجية.",
+      "byokTooLargeNeedsAccount": "أنشئ حسابًا وقم بالترقية إلى خطة مدفوعة لتفريغ الملفات الأكبر حجمًا باستخدام localwhispr Cloud.",
+      "byokTooLargeNeedsUpgrade": "قم بالترقية إلى خطة مدفوعة لتفريغ الملفات الأكبر حجمًا باستخدام localwhispr Cloud.",
+      "switchToCloudForLargeFiles": "قم بالتبديل إلى localwhispr Cloud لتفريغ هذا الملف.",
       "createAccount": "إنشاء حساب",
       "upgrade": "ترقية",
-      "switchToCloud": "OpenWhispr Cloud",
+      "switchToCloud": "localwhispr Cloud",
       "orDivider": "أو",
       "urlPlaceholder": "الصق رابط YouTube أو رابط صوتي",
       "urlDownloading": "جاري تنزيل الصوت...",
@@ -2270,7 +2270,7 @@
       },
       "systemAudioStopped": {
         "title": "توقف صوت الاجتماع",
-        "description": "لم يعد OpenWhispr يلتقط أصوات المشاركين الآخرين. أوقف التسجيل ثم ابدأه من جديد، أو تحقق من جهاز إخراج الصوت."
+        "description": "لم يعد localwhispr يلتقط أصوات المشاركين الآخرين. أوقف التسجيل ثم ابدأه من جديد، أو تحقق من جهاز إخراج الصوت."
       },
       "systemAudioQuiet": {
         "title": "خفت صوت الاجتماع",
@@ -2546,7 +2546,7 @@
   "onboarding": {
     "rehaul": {
       "permissions": {
-        "title": "قم بإعداد OpenWhispr في 3 دقائق",
+        "title": "قم بإعداد localwhispr في 3 دقائق",
         "microphoneDescription": "يحوّل ما تقوله إلى نص. يعمل أثناء التسجيل فقط.",
         "accessibilityDescription": "يلصق النص في التطبيق الذي تستخدمه.",
         "systemAudioTitle": "صوت النظام",
@@ -2559,7 +2559,7 @@
         "title": "ما هي اللغات التي تتحدثها؟",
         "titleLineOne": "ما هي اللغات",
         "titleLineTwo": "التي تتحدثها؟",
-        "description": "حدد جميع اللغات التي تنطبق. هذا يساعد OpenWhispr على التعرف على تبديل اللغات بدقة أكبر."
+        "description": "حدد جميع اللغات التي تنطبق. هذا يساعد localwhispr على التعرف على تبديل اللغات بدقة أكبر."
       },
       "dictationHotkey": {
         "title": "اختر اختصار الإملاء الخاص بك",
@@ -2569,10 +2569,10 @@
         "activation": "نقر أم استمرار الضغط؟"
       },
       "assistantHotkey": {
-        "title": "قم بإعداد OpenWhispr Assistant",
+        "title": "قم بإعداد localwhispr Assistant",
         "titleLineOne": "قم بإعداد",
-        "titleLineTwo": "OpenWhispr Assistant",
-        "description": "قل طلبك، وسيكتب OpenWhispr Assistant النتيجة لك."
+        "titleLineTwo": "localwhispr Assistant",
+        "description": "قل طلبك، وسيكتب localwhispr Assistant النتيجة لك."
       },
       "hotkey": {
         "capture": "اضغط على المفتاح الذي تريد استخدامه",
@@ -2584,15 +2584,15 @@
         "title": "جرب إملاءك الأول",
         "titleLineOne": "جرب",
         "titleLineTwo": "إملاءك الأول",
-        "description": "اضغط على {{hotkey}} وابدأ في التحدث. سيقوم OpenWhispr بتحويل صوتك إلى نص.",
-        "founder": "مرحبًا، أنا غيب (Gabe)، المؤسس. شكرًا لتجربتك OpenWhispr!",
-        "prompt": "انقر في المربع أدناه، واضغط على اختصارك، وأخبرني: ماذا تود أن يفعل OpenWhispr من أجلك؟",
-        "placeholder": "انقر هنا ثم اضغط على اختصارك. يكتب OpenWhispr في أي مربع نص."
+        "description": "اضغط على {{hotkey}} وابدأ في التحدث. سيقوم localwhispr بتحويل صوتك إلى نص.",
+        "founder": "مرحبًا، أنا غيب (Gabe)، المؤسس. شكرًا لتجربتك localwhispr!",
+        "prompt": "انقر في المربع أدناه، واضغط على اختصارك، وأخبرني: ماذا تود أن يفعل localwhispr من أجلك؟",
+        "placeholder": "انقر هنا ثم اضغط على اختصارك. يكتب localwhispr في أي مربع نص."
       },
       "assistantDemo": {
-        "title": "تعرف على OpenWhispr Assistant",
+        "title": "تعرف على localwhispr Assistant",
         "titleLineOne": "تعرف على",
-        "titleLineTwo": "OpenWhispr Assistant",
+        "titleLineTwo": "localwhispr Assistant",
         "email": {
           "subject": "قهوة الأسبوع المقبل؟",
           "senderName": "ماريا ألفاريز",
@@ -2626,13 +2626,13 @@
         "typing": "جاري الكتابة..."
       },
       "notes": {
-        "title": "سجل الاجتماعات بدون روبوت مع OpenWhispr Notes",
+        "title": "سجل الاجتماعات بدون روبوت مع localwhispr Notes",
         "titleLineOne": "سجل الاجتماعات بدون روبوت",
         "titleLineTwoPrefix": "مع",
-        "titleLineTwoBrand": "OpenWhispr Notes",
-        "description": "يحول OpenWhispr محادثاتك إلى ملاحظات واضحة. لا ينضم أي روبوت إلى مكالماتك.",
+        "titleLineTwoBrand": "localwhispr Notes",
+        "description": "يحول localwhispr محادثاتك إلى ملاحظات واضحة. لا ينضم أي روبوت إلى مكالماتك.",
         "hero": {
-          "description": "سجل اجتماعك ودع OpenWhispr يحول المحادثة إلى ملاحظات واضحة ومنظمة.",
+          "description": "سجل اجتماعك ودع localwhispr يحول المحادثة إلى ملاحظات واضحة ومنظمة.",
           "chat": "دردش مع ملاحظات اجتماعك",
           "transcript": "راجع النص المفرَّغ الكامل",
           "speakers": "اعرف من قال ماذا"
@@ -2648,16 +2648,16 @@
         }
       },
       "setupChoice": {
-        "title": "اختر إعداد OpenWhispr الخاص بك",
+        "title": "اختر إعداد localwhispr الخاص بك",
         "titleLineOne": "اختر إعداد",
-        "titleLineTwo": "OpenWhispr الخاص بك",
+        "titleLineTwo": "localwhispr الخاص بك",
         "description": "اختر الخيار الذي يناسب طريقة عملك.",
         "unavailable": {
           "title": "لا يتوفر أي خيار إعداد",
           "description": "سياسة مساحة العمل الخاصة بك لا تسمح بإعداد كامل للتفريغ والذكاء الاصطناعي. اتصل بالمسؤول."
         },
         "cloud": {
-          "title": "OpenWhispr Cloud",
+          "title": "localwhispr Cloud",
           "description": "احصل على 2,000 كلمة مجانية كل أسبوع. تظل إعداداتك متزامنة عبر الأجهزة.",
           "continue": "المتابعة مجانًا",
           "signIn": "تسجيل الدخول لاستخدام السحابة",
@@ -2805,14 +2805,14 @@
       "accessibilityTitle": "تسهيلات الاستخدام",
       "accessibilityDescription": "يكتب النص النهائي مباشرة في أي تطبيق تستخدمه — المستندات، البريد الإلكتروني، الدردشة.",
       "testAndGrant": "اختبار ومنح",
-      "requiredForApp": "مطلوب لعمل OpenWhispr",
+      "requiredForApp": "مطلوب لعمل localwhispr",
       "microphoneRequired": "الوصول إلى الميكروفون مطلوب",
       "openSystemSettings": "فتح إعدادات النظام",
       "systemAudioTitle": "صوت النظام",
       "systemAudioDescription": "يتيح لمسجل الاجتماع سماع الجانب الآخر من مكالماتك — الاجتماعات، المحاضرات، البودكاست. يمكنك تشغيل هذا لاحقًا في الإعدادات.",
       "optional": "اختياري",
       "recommended": "موصى به",
-      "accessibilityTroubleshooting": "في إعدادات النظام ← تسهيلات الاستخدام، أوقف مفتاح تبديل OpenWhispr ثم أعد تشغيله. إذا لم يكن OpenWhispr موجودًا في القائمة أصلًا، فانقر على + وأضفه من مجلد التطبيقات. هل ما زلت تواجه مشكلة؟ راسلنا على support@openwhispr.com."
+      "accessibilityTroubleshooting": "في إعدادات النظام ← تسهيلات الاستخدام، أوقف مفتاح تبديل localwhispr ثم أعد تشغيله. إذا لم يكن localwhispr موجودًا في القائمة أصلًا، فانقر على + وأضفه من مجلد التطبيقات. هل ما زلت تواجه مشكلة؟ راسلنا على support@openwhispr.com."
     },
     "transcription": {
       "title": "إعداد التفريغ",
@@ -2832,18 +2832,18 @@
       "textareaPlaceholder": "انقر هنا واستخدم اختصار لوحة المفاتيح الخاص بك للإملاء..."
     },
     "connectivity": {
-      "title": "لا يمكننا الوصول إلى OpenWhispr Cloud من هذه الشبكة",
+      "title": "لا يمكننا الوصول إلى localwhispr Cloud من هذه الشبكة",
       "body": "{{cause}} يمكنك التبديل إلى المحرك المحلي، أو المتابعة والمحاولة مرة أخرى لاحقًا.",
       "useLocal": "استخدام المحرك المحلي",
       "continue": "المتابعة على أي حال"
     },
     "useCase": {
-      "title": "كيف ستستخدم OpenWhispr؟",
+      "title": "كيف ستستخدم localwhispr؟",
       "titleLineOne": "كيف ستستخدم",
-      "titleLineTwo": "OpenWhispr؟",
+      "titleLineTwo": "localwhispr؟",
       "description": "اختر كل ما ينطبق. سنقوم بتخصيص إعدادك.",
       "noteLabel": "هل هناك أي شيء آخر تود أن نعرفه؟",
-      "notePlaceholder": "أخبرنا كيف تخطط لاستخدام OpenWhispr (اختياري)",
+      "notePlaceholder": "أخبرنا كيف تخطط لاستخدام localwhispr (اختياري)",
       "proceedToSetup": "متابعة الإعداد",
       "options": {
         "dictation": {
@@ -2876,13 +2876,13 @@
     "meeting": {
       "title": "ملاحظات الاجتماعات",
       "description": "سجّل اجتماعاتك ولخّصها",
-      "autoDetect": "يكتشف OpenWhispr تلقائيًا عندما تكون في اجتماع ويعرض بدء تدوين الملاحظات — لا يتم تسجيل أي شيء بدون إذنك.",
+      "autoDetect": "يكتشف localwhispr تلقائيًا عندما تكون في اجتماع ويعرض بدء تدوين الملاحظات — لا يتم تسجيل أي شيء بدون إذنك.",
       "hotkeyLabel": "اختصار الاجتماع",
       "hotkeyHint": "اختياري — اضغط عليه في أي اجتماع لبدء ملاحظة على الفور."
     },
     "finish": {
       "title": "لقد انتهيت من الإعداد",
-      "cloudDescription": "أنت تستخدم OpenWhispr Cloud — سريع ودقيق ولا يحتفظ بالبيانات، مع 2,000 كلمة مجانية كل أسبوع. هل تفضل كل شيء على جهازك؟ قم بالتبديل إلى المعالجة المحلية في الإعدادات.",
+      "cloudDescription": "أنت تستخدم localwhispr Cloud — سريع ودقيق ولا يحتفظ بالبيانات، مع 2,000 كلمة مجانية كل أسبوع. هل تفضل كل شيء على جهازك؟ قم بالتبديل إلى المعالجة المحلية في الإعدادات.",
       "localDescription": "لقد قمت بإعداد المعالجة المحلية أو مفتاحك الخاص. يمكنك ضبط كيفية معالجة صوتك في أي وقت في الإعدادات.",
       "cleanupNote": "يعمل تنظيف النص بالذكاء الاصطناعي بإعدادات افتراضية معقولة. يمكنك تعديلها في أي وقت في الإعدادات.",
       "openSettings": "فتح الإعدادات",
@@ -2917,14 +2917,14 @@
       "return": "العودة إلى الإعداد",
       "missingApp": "أو اختر التطبيق عبر +",
       "failed": "تعذر التحقق من الوصول.",
-      "microphone": "فعّل OpenWhispr ضمن الميكروفون.",
-      "accessibility": "اسحب OpenWhispr إلى تسهيلات الاستخدام، ثم فعّله.",
-      "systemAudio": "فعّل OpenWhispr ضمن تسجيل صوت النظام فقط.",
-      "screenContext": "اسحب OpenWhispr إلى تسجيل الشاشة وصوت النظام، ثم فعّله.",
+      "microphone": "فعّل localwhispr ضمن الميكروفون.",
+      "accessibility": "اسحب localwhispr إلى تسهيلات الاستخدام، ثم فعّله.",
+      "systemAudio": "فعّل localwhispr ضمن تسجيل صوت النظام فقط.",
+      "screenContext": "اسحب localwhispr إلى تسجيل الشاشة وصوت النظام، ثم فعّله.",
       "settings": "فتح الإعدادات",
       "check": "التحقق مجددًا",
       "restart": "إعادة التشغيل",
-      "restartRequired": "أعد تشغيل OpenWhispr لتطبيق الوصول إلى الشاشة."
+      "restartRequired": "أعد تشغيل localwhispr لتطبيق الوصول إلى الشاشة."
     }
   },
   "settingsPage": {
@@ -3236,7 +3236,7 @@
           "price": "$0",
           "period": "إلى الأبد",
           "features": [
-            "## OpenWhispr Cloud",
+            "## localwhispr Cloud",
             "2,000 كلمة/أسبوع للتفريغ",
             "5 ساعات من تسجيلات الاجتماعات/شهر",
             "## مجانًا دائمًا",
@@ -3354,7 +3354,7 @@
         "button": "حذف حسابي",
         "deleting": "جاري الحذف...",
         "title": "هل تريد حذف حسابك؟",
-        "description": "يؤدي هذا إلى حذف حساب OpenWhispr وبياناتك الشخصية نهائيًا. سيبقى المحتوى المملوك لمساحة العمل وبيانات المستخدمين المحليين الآخرين على هذا الجهاز.",
+        "description": "يؤدي هذا إلى حذف حساب localwhispr وبياناتك الشخصية نهائيًا. سيبقى المحتوى المملوك لمساحة العمل وبيانات المستخدمين المحليين الآخرين على هذا الجهاز.",
         "eraseDeviceLabel": "مسح جميع البيانات من هذا الجهاز أيضًا",
         "eraseDeviceDescription": "يحذف ملاحظات جميع المستخدمين المحليين وبيانات مساحة العمل المخزنة مؤقتًا والنماذج التي تم تنزيلها والإعدادات واتصالات التقويم وبيانات الاعتماد والتسجيلات.",
         "eraseDeviceWarning": "لا يمكن التراجع عن هذا المسح الشامل للجهاز، وهو يؤثر على جميع المستخدمين المحليين.",
@@ -3432,7 +3432,7 @@
       "enableTextCleanup": "تمكين تنظيف النص",
       "enableTextCleanupDescription": "استخدم الذكاء الاصطناعي لإزالة كلمات الحشو، وإصلاح القواعد، وتنسيق علامات الترقيم",
       "modes": {
-        "openwhispr": "OpenWhispr Cloud",
+        "openwhispr": "localwhispr Cloud",
         "providers": "مزودو الخدمات السحابية",
         "local": "محلي",
         "selfHosted": "مستضاف ذاتيًا",
@@ -3443,13 +3443,13 @@
         "selfHostedDesc": "خادمك الخاص على شبكتك.",
         "enterpriseDesc": "استخدم الحساب السحابي لمؤسستك (AWS، Azure، GCP)."
       },
-      "openwhisprCloud": "OpenWhispr Cloud",
+      "openwhisprCloud": "localwhispr Cloud",
       "openwhisprCloudDescription": "دقة موثوقة. لا حاجة للإعداد.",
       "title": "تحسين النص بالذكاء الاصطناعي",
       "toasts": {
         "switchedCloud": {
-          "description": "سيستخدم تحسين النص الخدمة السحابية لـ OpenWhispr.",
-          "title": "تم التبديل إلى OpenWhispr Cloud"
+          "description": "سيستخدم تحسين النص الخدمة السحابية لـ localwhispr.",
+          "title": "تم التبديل إلى localwhispr Cloud"
         },
         "switchedCustom": {
           "description": "قم بتكوين المزود ومفتاح API الخاصين بك.",
@@ -3537,7 +3537,7 @@
       "appearance": {
         "auto": "تلقائي",
         "dark": "داكن",
-        "description": "تحكم في مظهر OpenWhispr",
+        "description": "تحكم في مظهر localwhispr",
         "light": "فاتح",
         "theme": "السمة",
         "themeDescription": "اختر المظهر الفاتح أو الداكن أو مطابقة إعدادات النظام",
@@ -3565,8 +3565,8 @@
         "linuxPttSetupDescription": "يحتاج المستخدم الخاص بك إلى الوصول إلى أجهزة إدخال لوحة المفاتيح.",
         "linuxPttSetupNote": "بعد تشغيل الأمر، قم بتسجيل الخروج وتسجيل الدخول مرة أخرى.",
         "hyprlandConfigWriteWarningTitle": "لن يتم حفظ اختصارات Hyprland بشكل دائم",
-        "hyprlandConfigWriteWarningDescription": "لا يمكن لـ OpenWhispr الكتابة إلى {{path}}، لذلك لن تبقى الاختصارات بعد إعادة تحميل تكوين Hyprland. تأكد من وجود الملف وقابليته للكتابة.",
-        "hyprlandUnbindDescription": "في Hyprland، يستحوذ OpenWhispr على الاختصار المحدد. سيتم فك أي ارتباط Hyprland موجود يستخدم مجموعة المفاتيح نفسها عندما يسجل OpenWhispr اختصاره."
+        "hyprlandConfigWriteWarningDescription": "لا يمكن لـ localwhispr الكتابة إلى {{path}}، لذلك لن تبقى الاختصارات بعد إعادة تحميل تكوين Hyprland. تأكد من وجود الملف وقابليته للكتابة.",
+        "hyprlandUnbindDescription": "في Hyprland، يستحوذ localwhispr على الاختصار المحدد. سيتم فك أي ارتباط Hyprland موجود يستخدم مجموعة المفاتيح نفسها عندما يسجل localwhispr اختصاره."
       },
       "meetingHotkey": {
         "title": "مفتاح اختصار وضع الاجتماع",
@@ -3592,7 +3592,7 @@
       },
       "notifications": {
         "title": "الإشعارات",
-        "description": "تحكم في الإشعارات التي يمكن لـ OpenWhispr إظهارها",
+        "description": "تحكم في الإشعارات التي يمكن لـ localwhispr إظهارها",
         "disableAll": "تعطيل جميع الإشعارات",
         "disableAllDescription": "كتم كل شيء باستثناء رسائل الخطأ",
         "meetingDetection": "اكتشاف الاجتماع",
@@ -3609,14 +3609,14 @@
       },
       "startup": {
         "launchAtLogin": "بدء التشغيل عند تسجيل الدخول",
-        "launchAtLoginDescription": "تشغيل OpenWhispr في الخلفية عند تسجيل الدخول",
+        "launchAtLoginDescription": "تشغيل localwhispr في الخلفية عند تسجيل الدخول",
         "title": "بدء التشغيل",
-        "description": "تحكم في كيفية تصرف OpenWhispr عند تشغيله",
+        "description": "تحكم في كيفية تصرف localwhispr عند تشغيله",
         "startMinimized": "البدء مصغرًا",
         "startMinimizedDescription": "التشغيل دون إظهار نافذة لوحة التحكم",
         "needsApproval": {
           "title": "الموافقة مطلوبة في إعدادات النظام",
-          "description": "سجل macOS OpenWhispr كعنصر تسجيل دخول ولكنه ينتظر منك السماح له ضمن عناصر تسجيل الدخول.",
+          "description": "سجل macOS localwhispr كعنصر تسجيل دخول ولكنه ينتظر منك السماح له ضمن عناصر تسجيل الدخول.",
           "action": "فتح عناصر تسجيل الدخول"
         }
       },
@@ -3668,7 +3668,7 @@
           "group": {
             "step1Title": "أضف مستخدمك إلى مجموعة input",
             "step2Title": "تسجيل الخروج وتسجيل الدخول مرة أخرى",
-            "step2Desc": "تغييرات المجموعة لا تدخل حيز التنفيذ إلا بعد جلسة تسجيل دخول جديدة. سجّل الخروج من سطح المكتب وسجل الدخول مرة أخرى، ثم أعد فتح OpenWhispr."
+            "step2Desc": "تغييرات المجموعة لا تدخل حيز التنفيذ إلا بعد جلسة تسجيل دخول جديدة. سجّل الخروج من سطح المكتب وسجل الدخول مرة أخرى، ثم أعد فتح localwhispr."
           },
           "service": {
             "step1Title": "إنشاء دليل الخدمة",
@@ -3692,7 +3692,7 @@
           "manualTitle": "أضف هذا إلى التكوين الخاص بك",
           "manualDesc": "قم بتكوينه بنفسك، ثم أعد البناء.",
           "flakeTitle": "التثبيت عبر flake الخاص بنا؟",
-          "flakeDesc": "إذا قمت بتثبيت OpenWhispr من flake، فسيقوم programs.openwhispr.enable بتفعيل ydotool ووحدة uinput وعضويات المجموعة نيابة عنك.",
+          "flakeDesc": "إذا قمت بتثبيت localwhispr من flake، فسيقوم programs.openwhispr.enable بتفعيل ydotool ووحدة uinput وعضويات المجموعة نيابة عنك.",
           "rebuildNote": "قم بتشغيل sudo nixos-rebuild switch، ثم قم بتسجيل الخروج وتسجيل الدخول مرة أخرى حتى يسري تغيير المجموعة وقاعدة /dev/uinput. استبدل <you> باسم المستخدم الخاص بك."
         }
       },
@@ -3727,7 +3727,7 @@
           },
           "installUpdate": {
             "confirmText": "تثبيت وإعادة التشغيل",
-            "description": "سيتم إعادة تشغيل OpenWhispr لتطبيق التحديث.",
+            "description": "سيتم إعادة تشغيل localwhispr لتطبيق التحديث.",
             "title": "تثبيت التحديث"
           },
           "noUpdates": {
@@ -3759,13 +3759,13 @@
     "permissions": {
       "accessibilityDescription": "مطلوب لعمل اللصق التلقائي بعد التفريغ",
       "accessibilityTitle": "تسهيلات الاستخدام",
-      "description": "اختبار وإدارة أذونات النظام المطلوبة لعمل OpenWhispr بشكل صحيح",
+      "description": "اختبار وإدارة أذونات النظام المطلوبة لعمل localwhispr بشكل صحيح",
       "microphoneDescription": "يلتقط صوتك للإملاء والتفريغ",
       "microphoneTitle": "الميكروفون",
       "resetAccessibility": {
-        "description": "سيؤدي هذا إلى إزالة OpenWhispr من أذونات تسهيلات الاستخدام. ستحتاج إلى إعادة منح الوصول من قسم تسهيلات الاستخدام ضمن الخصوصية والأمان في إعدادات النظام.",
+        "description": "سيؤدي هذا إلى إزالة localwhispr من أذونات تسهيلات الاستخدام. ستحتاج إلى إعادة منح الوصول من قسم تسهيلات الاستخدام ضمن الخصوصية والأمان في إعدادات النظام.",
         "label": "إعادة تعيين أذونات تسهيلات الاستخدام",
-        "rowDescription": "إصلاح المشكلات بعد إعادة تثبيت التطبيق أو إعادة بنائه عن طريق إزالة وإضافة OpenWhispr في إعدادات النظام",
+        "rowDescription": "إصلاح المشكلات بعد إعادة تثبيت التطبيق أو إعادة بنائه عن طريق إزالة وإضافة localwhispr في إعدادات النظام",
         "title": "إعادة تعيين أذونات تسهيلات الاستخدام"
       },
       "optional": "اختياري",
@@ -3787,7 +3787,7 @@
       "description": "تحكم في البيانات التي تغادر جهازك. كل شيء متوقف افتراضيًا.",
       "title": "الخصوصية",
       "usageAnalytics": "تحليلات الاستخدام",
-      "usageAnalyticsDescription": "ساعدنا في تحسين OpenWhispr من خلال مشاركة مقاييس الأداء المجهولة. لا نرسل أبدًا محتوى التفريغ — فقط بيانات التوقيت والأخطاء.",
+      "usageAnalyticsDescription": "ساعدنا في تحسين localwhispr من خلال مشاركة مقاييس الأداء المجهولة. لا نرسل أبدًا محتوى التفريغ — فقط بيانات التوقيت والأخطاء.",
       "audioRetention": "الاحتفاظ بالصوت",
       "audioRetentionDescription": "تخزين صوت الإملاء محليًا لإعادة التفريغ والتنزيل. يتم حذف الملفات تلقائيًا بعد فترة الاحتفاظ. لا يتم تخزين صوت الاجتماعات أبدًا.",
       "audioRetentionDisabled": "معطل",
@@ -3872,9 +3872,9 @@
     "transcription": {
       "customSetup": "إعداد مخصص",
       "customSetupDescription": "استخدم المزود ومفتاح API الخاص بك.",
-      "description": "اختر كيف يفرّغ OpenWhispr صوتك",
+      "description": "اختر كيف يفرّغ localwhispr صوتك",
       "modes": {
-        "openwhispr": "OpenWhispr Cloud",
+        "openwhispr": "localwhispr Cloud",
         "providers": "مزودو الخدمات السحابية",
         "local": "محلي",
         "selfHosted": "مستضاف ذاتيًا",
@@ -3885,13 +3885,13 @@
         "enterprise": "السحابة المؤسسية",
         "enterpriseDesc": "يُرسَل الصوت إلى السحابة الخاصة بمؤسستك."
       },
-      "openwhisprCloud": "OpenWhispr Cloud",
+      "openwhisprCloud": "localwhispr Cloud",
       "openwhisprCloudDescription": "دقة موثوقة. لا حاجة للإعداد.",
       "title": "تحويل الكلام إلى نص",
       "toasts": {
         "switchedCloud": {
-          "description": "سيستخدم التفريغ الخدمة السحابية لـ OpenWhispr.",
-          "title": "تم التبديل إلى OpenWhispr Cloud"
+          "description": "سيستخدم التفريغ الخدمة السحابية لـ localwhispr.",
+          "title": "تم التبديل إلى localwhispr Cloud"
         },
         "switchedCustom": {
           "description": "قم بتكوين المزود ومفتاح API الخاصين بك.",
@@ -4046,7 +4046,7 @@
       "sectionTitle": "اللغة",
       "sectionDescription": "تعيين لغات الواجهة والتفريغ الصوتي بشكل مستقل",
       "uiLabel": "لغة الواجهة",
-      "uiDescription": "اختر اللغة المستخدمة في واجهة OpenWhispr",
+      "uiDescription": "اختر اللغة المستخدمة في واجهة localwhispr",
       "transcriptionLabel": "لغة التفريغ الصوتي",
       "transcriptionDescription": "اختر اللغة التي تتحدث بها للحصول على تفريغ صوتي أكثر دقة",
       "chineseScriptLabel": "الكتابة الصينية (الإملاء)",
@@ -4081,12 +4081,12 @@
     },
     "openControlPanel": "فتح لوحة التحكم",
     "hideControlPanel": "إخفاء لوحة التحكم",
-    "quit": "إنهاء OpenWhispr",
-    "tooltip": "OpenWhispr - الإملاء الصوتي"
+    "quit": "إنهاء localwhispr",
+    "tooltip": "localwhispr - الإملاء الصوتي"
   },
   "menu": {
-    "appLabel": "OpenWhispr",
-    "quit": "إنهاء OpenWhispr",
+    "appLabel": "localwhispr",
+    "quit": "إنهاء localwhispr",
     "speech": "النطق",
     "settings": "الإعدادات...",
     "help": "المساعدة",
@@ -4104,8 +4104,8 @@
       "message": "فشل فتح الرابط في متصفحك:\n{{url}}\n\nخطأ: {{error}}"
     },
     "loadFailure": {
-      "title": "فشل تحميل OpenWhispr",
-      "message": "تعذر على OpenWhispr تحميل واجهة المستخدم الخاصة به.",
+      "title": "فشل تحميل localwhispr",
+      "message": "تعذر على localwhispr تحميل واجهة المستخدم الخاصة به.",
       "detail": {
         "window": "النافذة: {{windowName}}",
         "error": "خطأ {{errorCode}}: {{errorDescription}}",
@@ -4116,17 +4116,17 @@
   },
   "startup": {
     "error": {
-      "title": "خطأ في بدء تشغيل OpenWhispr",
+      "title": "خطأ في بدء تشغيل localwhispr",
       "message": "فشل في بدء تشغيل التطبيق:\n\n{{error}}\n\nيرجى الإبلاغ عن هذه المشكلة."
     },
     "globeHotkey": {
       "title": "مفتاح اختصار Globe غير متوفر",
-      "message": "لم يتمكن OpenWhispr من تفعيل مفتاح اختصار Globe.",
+      "message": "لم يتمكن localwhispr من تفعيل مفتاح اختصار Globe.",
       "details": {
         "unknown": "حدث خطأ غير معروف أثناء بدء مستمع Globe.",
         "fallback": "سيظل اختصار مفتاح Globe معطلًا؛ ستستمر اختصارات لوحة المفاتيح الحالية في العمل.",
         "devHint": "شغّل `npm run compile:globe` وأعد بناء التطبيق لإعادة إنشاء ملف المستمع الثنائي.",
-        "reinstallHint": "حاول إعادة تثبيت OpenWhispr أو اتصل بالدعم إذا استمرت المشكلة."
+        "reinstallHint": "حاول إعادة تثبيت localwhispr أو اتصل بالدعم إذا استمرت المشكلة."
       }
     }
   },
@@ -4231,7 +4231,7 @@
   "streaming": {
     "errors": {
       "cloudUnreachable": {
-        "title": "لا يمكن الوصول إلى OpenWhispr Cloud",
+        "title": "لا يمكن الوصول إلى localwhispr Cloud",
         "generic": "فشل طلب الشبكة. تحقق من اتصالك.",
         "dnsBlocked": "لا يستطيع DNS تحليل openwhispr.com — قد يقوم مانع الإعلانات أو مرشح بحظره.",
         "refused": "تم رفض الاتصال — على الأرجح بسبب جدار حماية أو VPN.",
@@ -4431,10 +4431,10 @@
     "recheckChecking": "جاري التحقق...",
     "title": "اللصق التلقائي",
     "usingMethodPrefix": "يتم استخدام",
-    "waylandClipboardDescription": "اللصق التلقائي غير متوفر في جلسة Wayland هذه. سيقوم OpenWhispr بنسخ النص إلى الحافظة الخاصة بك لتتمكن من لصقه يدويًا باستخدام Ctrl+V.",
+    "waylandClipboardDescription": "اللصق التلقائي غير متوفر في جلسة Wayland هذه. سيقوم localwhispr بنسخ النص إلى الحافظة الخاصة بك لتتمكن من لصقه يدويًا باستخدام Ctrl+V.",
     "waylandClipboardTitle": "وضع الحافظة في Wayland",
     "windowsReady": "نظام Windows يدعم اللصق التلقائي بشكل افتراضي. لا يتطلب أي إعداد!",
-    "withoutToolPrefix": "بدون هذه الأداة، سيقوم OpenWhispr بنسخ النص إلى الحافظة الخاصة بك. يمكنك بعد ذلك اللصق يدويًا باستخدام Ctrl+V.",
+    "withoutToolPrefix": "بدون هذه الأداة، سيقوم localwhispr بنسخ النص إلى الحافظة الخاصة بك. يمكنك بعد ذلك اللصق يدويًا باستخدام Ctrl+V.",
     "wtypeFallbackDescription": "يُعد wtype الطريقة المفضلة للصق التلقائي في مركب wlroots هذا. يتوفر بديل آخر، ولكنه قد يكون أقل موثوقية.",
     "xwaylandAppsOnly": "اللصق التلقائي يعمل مع تطبيقات XWayland فقط"
   },
@@ -4599,7 +4599,7 @@
       "emptyStrip_many": "لم ينضم {{count}} زميلًا إلى لائحة المتصدرين بعد. يبدأ التصنيف عند انضمامهم.",
       "emptyStrip_other": "لم ينضم {{count}} زميل إلى لائحة المتصدرين بعد. يبدأ التصنيف عند انضمامهم.",
       "copyNudge": "نسخ رسالة تشجيع",
-      "nudgeText": "انضم إلى لائحة المتصدرين في OpenWhispr ← الإحصاءات (Insights) حتى نرى لائحة الفريق.",
+      "nudgeText": "انضم إلى لائحة المتصدرين في localwhispr ← الإحصاءات (Insights) حتى نرى لائحة الفريق.",
       "nudgeCopied": "تم نسخ رسالة التشجيع",
       "nudgeCopyError": "تعذر نسخ رسالة التشجيع",
       "joinTitle": "اعرف ترتيبك في {{scope}}",
@@ -4661,7 +4661,7 @@
         "desktop_words": "كلمات سطح المكتب",
         "mobile_words": "كلمات الجوال"
       },
-      "shareText": "اعرف ترتيبي في OpenWhispr.",
+      "shareText": "اعرف ترتيبي في localwhispr.",
       "shareTitle": "مشاركة لائحة المتصدرين",
       "shareDescription": "انسخ هذه البطاقة أو نزّلها، أو انسخها قبل فتح محرر النشر على وسائل التواصل.",
       "copyImage": "نسخ الصورة",
@@ -4710,7 +4710,7 @@
     "submitBug": "الإبلاغ عن خطأ"
   },
   "postMigration": {
-    "title": "مرحبًا بعودتك إلى OpenWhispr",
+    "title": "مرحبًا بعودتك إلى localwhispr",
     "description": "تم نقل ملاحظاتك وإعداداتك من الإصدار السابق. ومع ذلك، يعامل macOS هذا كتطبيق جديد، لذا يجب منح بعض الأذونات مرة أخرى.",
     "done": "تم",
     "remindLater": "ذكرني لاحقًا"
@@ -4733,8 +4733,8 @@
     "ready": "تسريع GPU جاهز",
     "activating": "جاري تفعيل GPU...",
     "activationFailed": "تسريع GPU غير متاح",
-    "activationFailedDescription": "انتقل OpenWhispr إلى استخدام وحدة المعالجة المركزية (CPU) للتفريغ الصوتي.",
-    "reasoningActivationFailedDescription": "انتقل OpenWhispr إلى استخدام وحدة المعالجة المركزية (CPU) للمعالجة.",
+    "activationFailedDescription": "انتقل localwhispr إلى استخدام وحدة المعالجة المركزية (CPU) للتفريغ الصوتي.",
+    "reasoningActivationFailedDescription": "انتقل localwhispr إلى استخدام وحدة المعالجة المركزية (CPU) للمعالجة.",
     "retryActivation": "إعادة محاولة تفعيل GPU",
     "remove": "إزالة",
     "dismiss": "ليس الآن",
@@ -4816,7 +4816,7 @@
   },
   "permissionsGate": {
     "title": "الأذونات مطلوبة",
-    "description": "يحتاج OpenWhispr إلى بعض الأذونات للعمل على هذا الكمبيوتر.",
+    "description": "يحتاج localwhispr إلى بعض الأذونات للعمل على هذا الكمبيوتر.",
     "continue": "متابعة"
   },
   "embeddedChat": {

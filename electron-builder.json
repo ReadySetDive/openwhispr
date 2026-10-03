@@ -4,9 +4,9 @@
   "extraMetadata": {
     "windowsTrayIdentity": true
   },
-  "productName": "OpenWhispr",
+  "productName": "localwhispr",
   "protocols": {
-    "name": "OpenWhispr Protocol",
+    "name": "localwhispr Protocol",
     "schemes": ["openwhispr"]
   },
   "directories": {

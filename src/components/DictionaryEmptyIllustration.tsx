@@ -73,9 +73,9 @@ export default function DictionaryEmptyIllustration({ variant }: DictionaryEmpty
             className="absolute start-16 top-7 flex items-center gap-2 rounded-full border border-border/70 bg-card px-4 py-2.5 text-sm shadow-sm dark:bg-surface-window"
           >
             <span className="italic text-foreground/50 line-through dark:text-foreground/65">
-              open whisper
+              local whisper
             </span>
-            <span className="font-medium text-primary">OpenWhispr</span>
+            <span className="font-medium text-primary">localwhispr</span>
           </span>
           <span
             dir="ltr"

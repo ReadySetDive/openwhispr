@@ -2221,7 +2221,7 @@ export default function SettingsPage({
                   <SettingsPanelRow>
                     <SettingsRow
                       label="Offline Mode"
-                      description="OpenWhispr is running entirely locally on this computer. Speech recognition, transcription, and notes stay 100% on-device."
+                      description="localwhispr is running entirely locally on this computer. Speech recognition, transcription, and notes stay 100% on-device."
                     >
                       <Badge variant="default">Active</Badge>
                     </SettingsRow>
@@ -3661,7 +3661,7 @@ export default function SettingsPage({
                           }),
                           desc: t("settingsPage.general.waylandPaste.guide.group.step2Desc", {
                             defaultValue:
-                              "Group changes only take effect after a new login session. Log out of your desktop and log back in, then reopen OpenWhispr.",
+                              "Group changes only take effect after a new login session. Log out of your desktop and log back in, then reopen localwhispr.",
                           }),
                         },
                       ],

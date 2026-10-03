@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import {
+  Brain,
   Gift,
   Lock,
+  Mic,
   Settings,
   ShieldCheck,
   HelpCircle,
@@ -30,7 +32,7 @@ const rowButtonClass =
 interface ControlPanelSidebarProps {
   activeView: ControlPanelView;
   onViewChange: (view: ControlPanelView) => void;
-  onOpenSettings: () => void;
+  onOpenSettings: (section?: string) => void;
   onOpenReferrals?: () => void;
   onInviteTeam?: () => void;
   onUpgrade?: () => void;
@@ -213,7 +215,25 @@ export default function ControlPanelSidebar({
         )}
 
         <button
-          onClick={onOpenSettings}
+          onClick={() => onOpenSettings("speechToText")}
+          aria-label={t("settingsModal.sections.speechToText.label")}
+          className={rowButtonClass}
+        >
+          <Mic size={16} className={rowIconClass} />
+          <span className={rowLabelClass}>{t("settingsModal.sections.speechToText.label")}</span>
+        </button>
+
+        <button
+          onClick={() => onOpenSettings("llms")}
+          aria-label={t("settingsModal.sections.llms.label")}
+          className={rowButtonClass}
+        >
+          <Brain size={16} className={rowIconClass} />
+          <span className={rowLabelClass}>{t("settingsModal.sections.llms.label")}</span>
+        </button>
+
+        <button
+          onClick={() => onOpenSettings()}
           aria-label={t("sidebar.settings")}
           className={rowButtonClass}
         >

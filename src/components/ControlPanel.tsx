@@ -999,8 +999,8 @@ export default function ControlPanel({ initialSettingsSection }: ControlPanelPro
           <ControlPanelSidebar
             activeView={activeView}
             onViewChange={setActiveView}
-            onOpenSettings={() => {
-              setSettingsSection(undefined);
+            onOpenSettings={(section) => {
+              setSettingsSection(section);
               setShowSettings(true);
             }}
             onOpenReferrals={undefined}
