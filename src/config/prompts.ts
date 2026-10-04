@@ -38,6 +38,8 @@ const TOOL_INSTRUCTIONS: Record<string, string> = {
     "Use list_folders before create_note or update_note whenever a note is going into a folder, so you can reuse an existing folder whose name fits the note's topic instead of creating a near-duplicate.",
   web_search:
     "Use web_search to query DuckDuckGo for questions about current events, facts, news, documentation, or anything requiring up-to-date web information. When the user asks to search, look up, or find current information on the web, always call web_search.",
+  fetch_web_page:
+    "Use fetch_web_page to read the full content of a specific web page URL as clean markdown when search snippets do not provide enough detail, or when the user asks you to read or summarize a URL.",
   copy_to_clipboard:
     "Use copy_to_clipboard when the user asks you to copy something to their clipboard.",
   get_snippet:

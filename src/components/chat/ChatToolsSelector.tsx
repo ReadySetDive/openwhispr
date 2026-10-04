@@ -159,13 +159,13 @@ export function ChatToolsSelector({
                 </span>
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-medium text-xs">Web Search</span>
+                    <span className="font-medium text-xs">Web Search & Reader</span>
                     <span className="rounded bg-blue-500/15 px-1 py-0.2 text-[9px] font-semibold text-blue-700 dark:text-blue-300">
-                      DuckDuckGo
+                      DuckDuckGo + Markdown
                     </span>
                   </div>
                   <p className="text-[11px] text-muted-foreground leading-normal">
-                    Searches the web via DuckDuckGo public API for facts, news, and real-time citations.
+                    DuckDuckGo search and clean Markdown web page reader for in-depth facts and citations.
                   </p>
                 </div>
               </div>

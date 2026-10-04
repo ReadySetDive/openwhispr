@@ -1123,6 +1123,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // Agent cloud tools
   agentWebSearch: (query, numResults) => ipcRenderer.invoke("agent-web-search", query, numResults),
+  agentFetchWebPage: (url) => ipcRenderer.invoke("agent-fetch-web-page", url),
   agentOpenNote: (noteId) => ipcRenderer.invoke("agent-open-note", noteId),
 
   // Agent conversation persistence

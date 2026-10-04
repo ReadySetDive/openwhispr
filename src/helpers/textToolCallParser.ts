@@ -62,10 +62,14 @@ export function parseLooseJson(raw: string): Record<string, unknown> | null {
     return { [simpleMatch[1]]: simpleMatch[2].trim() };
   }
 
-  // If input was a bare string without keys and looks like a query (e.g. {"foo"} or "foo")
+  // If input was a bare string without keys and looks like a query or URL (e.g. {"foo"} or "foo")
   const bareStrMatch = trimmed.match(/^\{?\s*["']?([^"'{}\n]+)["']?\s*\}?$/);
   if (bareStrMatch && bareStrMatch[1].trim()) {
-    return { query: bareStrMatch[1].trim() };
+    const val = bareStrMatch[1].trim();
+    if (val.startsWith("http://") || val.startsWith("https://")) {
+      return { url: val };
+    }
+    return { query: val };
   }
 
   return null;

@@ -2962,6 +2962,15 @@ declare global {
           }>;
         } & PolicyFailureMetadata
       >;
+      agentFetchWebPage?: (
+        url: string
+      ) => Promise<{
+        success: boolean;
+        title?: string;
+        url?: string;
+        markdown?: string;
+        error?: string;
+      }>;
 
       // Google Calendar
       gcalStartOAuth?: () => Promise<{ success: boolean; email?: string; error?: string }>;

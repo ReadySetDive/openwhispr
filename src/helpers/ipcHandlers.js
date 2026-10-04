@@ -9556,6 +9556,17 @@ class IPCHandlers {
       }
     });
 
+    ipcMain.handle("agent-fetch-web-page", async (_event, url) => {
+      try {
+        debugLogger.debug("Agent fetch webpage request", { url }, "tools");
+        const { fetchAndParseWebPage } = require("./htmlToMarkdown");
+        return await fetchAndParseWebPage(url);
+      } catch (error) {
+        debugLogger.error("Agent fetch webpage error:", error);
+        return { success: false, url, error: error.message };
+      }
+    });
+
     ipcMain.handle(
       "cloud-streaming-usage",
       async (event, text, audioDurationSeconds, opts = {}) => {

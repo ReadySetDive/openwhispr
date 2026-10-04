@@ -6,6 +6,7 @@ import { updateNoteTool } from "./updateNoteTool";
 import { listFoldersTool } from "./listFoldersTool";
 import { clipboardTool } from "./clipboardTool";
 import { webSearchTool } from "./webSearchTool";
+import { fetchWebPageTool } from "./fetchWebPageTool";
 import { calendarTool } from "./calendarTool";
 import { calendarAvailabilityTool } from "./calendarAvailabilityTool";
 import { createSnippetTool, createUpdateSnippetsTool, type SnippetActions } from "./snippetTool";
@@ -76,6 +77,7 @@ export function createToolRegistry(settings: ToolRegistrySettings): ToolRegistry
   // Web search uses DuckDuckGo public search and does not require cloud sign-in
   if (allowWebSearch && settings.webSearchEnabled) {
     registry.register(webSearchTool);
+    registry.register(fetchWebPageTool);
   }
 
   if (allowCalendar && settings.calendarConnected) {
