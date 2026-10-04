@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import ReasoningService, { type AgentStreamChunk } from "../../services/ReasoningService";
+import ReasoningService, { type AgentStreamChunk, type ToolMetadata } from "../../services/ReasoningService";
+import { parseTextToolCall } from "../../helpers/textToolCallParser";
 import { isEnterpriseProvider } from "../../models/ModelRegistry";
 import { providerSupportsImages } from "../../services/ai/inferenceProviders";
 import { getSettings, useSettingsStore } from "../../stores/settingsStore";
@@ -31,6 +32,7 @@ import {
 import { getDictionaryHintWords } from "../../utils/snippets";
 import { noteAttendeesContext, withoutAttendeesFence } from "../../utils/noteAttendees";
 import { createToolRegistry } from "../../services/tools";
+import { useChatToolsStore } from "../../stores/chatToolsStore";
 import {
   executeTool,
   type HoldDeliveryOptions,
@@ -54,7 +56,7 @@ const STREAM_FLUSH_INTERVAL_MS = 32;
 const LOCAL_TOOL_MIN_PARAMS_B = 4;
 
 function estimateModelSizeB(modelId: string): number {
-  const match = modelId.match(/-([\d.]+)[bB]/);
+  const match = modelId.match(/(?:-e|-E|-|_|^)(\d+(?:\.\d+)?)[bB]/) || modelId.match(/(\d+(?:\.\d+)?)[bB]/);
   return match ? parseFloat(match[1]) : 0;
 }
 
@@ -392,9 +394,15 @@ export function useChatStreaming({
             "openrouter",
             "corti",
           ].includes(llmConfig.provider);
+        const chatToolsState = useChatToolsStore.getState();
+        const toolsGloballyEnabled = chatToolsState.toolsEnabled;
         const localModelCanUseTool =
-          isLocalProvider && estimateModelSizeB(llmConfig.model) >= LOCAL_TOOL_MIN_PARAMS_B;
-        const supportsTools = isCloudAgent || !isLocalProvider || localModelCanUseTool;
+          isLocalProvider &&
+          (estimateModelSizeB(llmConfig.model) >= LOCAL_TOOL_MIN_PARAMS_B ||
+            /qwen/i.test(llmConfig.model) ||
+            /gemma/i.test(llmConfig.model));
+        const supportsTools =
+          toolsGloballyEnabled && (isCloudAgent || !isLocalProvider || localModelCanUseTool);
 
         const scope = searchScopeRef.current;
         let registry: ToolRegistry | null = null;
@@ -404,8 +412,13 @@ export function useChatStreaming({
           // The calendar tool reads the shared provider-deduped events table,
           // so any connected provider enables it.
           const calendarConnected =
-            settings.gcalConnected || settings.mcalConnected || settings.appleCalendarConnected;
-          const webSearchEnabled = isWebSearchAllowed(usePolicyStore.getState());
+            chatToolsState.toolToggles.calendar &&
+            (settings.gcalConnected || settings.mcalConnected || settings.appleCalendarConnected);
+          const policy = usePolicyStore.getState();
+          const webSearchBlockedByPolicy =
+            policy.status === "managed" && policy.policy?.features?.webSearchEnabled === false;
+          const webSearchEnabled =
+            chatToolsState.toolToggles.web_search && !webSearchBlockedByPolicy;
           const connectorsAvailable =
             allowConnectors &&
             settings.isSignedIn &&
@@ -425,7 +438,8 @@ export function useChatStreaming({
           connectorsOffered = connectors !== undefined;
           // Triggers ride in the tool description, so a snippet edit rebuilds the registry.
           const snippetKey = settings.snippets.map((s) => s.trigger).join("|");
-          const cacheKey = `${settings.isSignedIn}-${calendarConnected}-${settings.cloudBackupEnabled}-${scopeKey}-${webSearchEnabled}-${snippetKey}-${connectors?.emailDraftTarget ?? "no-connectors"}-${connectors?.readyConnectorIds.join(",") ?? ""}`;
+          const toolTogglesKey = `${chatToolsState.toolsEnabled}-${chatToolsState.toolToggles.web_search}-${chatToolsState.toolToggles.notes}-${chatToolsState.toolToggles.calendar}-${chatToolsState.toolToggles.clipboard}`;
+          const cacheKey = `${settings.isSignedIn}-${calendarConnected}-${settings.cloudBackupEnabled}-${scopeKey}-${webSearchEnabled}-${snippetKey}-${toolTogglesKey}-${connectors?.emailDraftTarget ?? "no-connectors"}-${connectors?.readyConnectorIds.join(",") ?? ""}`;
           if (toolRegistryRef.current?.key === cacheKey) {
             registry = toolRegistryRef.current.registry;
           } else {
@@ -435,6 +449,13 @@ export function useChatStreaming({
               cloudBackupEnabled: settings.cloudBackupEnabled,
               searchScope: scope,
               webSearchEnabled,
+              toolToggles: {
+                toolsEnabled: chatToolsState.toolsEnabled,
+                webSearch: chatToolsState.toolToggles.web_search,
+                notes: chatToolsState.toolToggles.notes,
+                calendar: chatToolsState.toolToggles.calendar,
+                clipboard: chatToolsState.toolToggles.clipboard,
+              },
               vocabulary: {
                 getDictionary: () => getSettings().customDictionary,
                 updateDictionary: (changes) =>
@@ -550,6 +571,7 @@ export function useChatStreaming({
 
         try {
           let stream: AsyncGenerator<AgentStreamChunk>;
+          let hasNativeToolCalls = false;
           // Each call's own step text on the AI SDK path, whose tool results
           // carry only the model-facing output (the cloud path yields it).
           const toolDisplayTexts = new Map<string, string>();
@@ -641,6 +663,7 @@ export function useChatStreaming({
               fullContent += chunk.text;
               scheduleContentFlush();
             } else if (chunk.type === "tool_calls") {
+              hasNativeToolCalls = true;
               // Text that arrived before a tool step must be on screen before the
               // step appears, not an interval after it.
               flushContentNow();
@@ -715,6 +738,148 @@ export function useChatStreaming({
               onStreamComplete?.(assistantId, fullContent, finalMsg?.toolCalls);
             }
             return;
+          }
+
+          // Fallback for models that output tool calls as raw text tokens (e.g. Gemma 4 / Qwen)
+          // instead of emitting OpenAI-style delta.tool_calls.
+          if (!hasNativeToolCalls && registry && fullContent.trim().length > 0) {
+            const textCall = parseTextToolCall(
+              fullContent,
+              registry.getAll().map((t) => t.name)
+            );
+            if (textCall) {
+              const toolDef = registry.get(textCall.toolName);
+              if (toolDef) {
+                fullContent = textCall.cleanText;
+                flushContentNow();
+
+                const fallbackCallId = crypto.randomUUID();
+                setAgentState("tool-executing");
+                beginToolActivity(
+                  textCall.toolName,
+                  t(`agentMode.tools.${textCall.toolName}Status`, {
+                    defaultValue: `Using ${textCall.toolName}...`,
+                  })
+                );
+
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId
+                      ? {
+                          ...m,
+                          content: fullContent,
+                          toolCalls: [
+                            ...(m.toolCalls || []),
+                            {
+                              id: fallbackCallId,
+                              name: textCall.toolName,
+                              arguments: JSON.stringify(textCall.arguments),
+                              status: "executing" as const,
+                            },
+                          ],
+                        }
+                      : m
+                  )
+                );
+
+                try {
+                  const fallbackCtx = toolScope.createContext({
+                    messageId: assistantId,
+                    toolCallId: fallbackCallId,
+                  });
+                  const fallbackResult = await executeTool(toolDef, textCall.arguments, fallbackCtx);
+
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === assistantId && m.toolCalls
+                        ? {
+                            ...m,
+                            toolCalls: m.toolCalls.map((tc) =>
+                              tc.id === fallbackCallId
+                                ? {
+                                    ...tc,
+                                    status: "completed" as const,
+                                    result: fallbackResult.displayText,
+                                    ...(fallbackResult.data && typeof fallbackResult.data === "object"
+                                      ? { metadata: fallbackResult.data as ToolMetadata }
+                                      : {}),
+                                  }
+                                : tc
+                            ),
+                          }
+                        : m
+                    )
+                  );
+                  completeToolActivity();
+                  setAgentState("streaming");
+
+                  if (!cancelled() && mountedRef.current) {
+                    const followUpPrompt = `Tool '${textCall.toolName}' completed with result:\n\n${
+                      typeof fallbackResult.data === "string"
+                        ? fallbackResult.data
+                        : JSON.stringify(fallbackResult.data, null, 2)
+                    }\n\nPlease provide your final response to the user based on these results.`;
+
+                    const followUpHistory: HistoryMessage[] = [
+                      ...history,
+                      {
+                        role: "assistant",
+                        content:
+                          fullContent ||
+                          `I'll look that up for you using ${textCall.toolName}.`,
+                      },
+                      {
+                        role: "user",
+                        content: followUpPrompt,
+                      },
+                    ];
+
+                    const followUpLlmMessages = [
+                      { role: "system", content: systemPrompt },
+                      ...followUpHistory,
+                    ];
+
+                    fullContent = "";
+                    const followUpStream = ReasoningService.processTextStreamingAI(
+                      followUpLlmMessages,
+                      llmConfig.model,
+                      llmConfig.provider,
+                      {
+                        systemPrompt,
+                        inferenceScope:
+                          llmConfig.scope === "dictationAgentVision"
+                            ? "dictationAgent"
+                            : llmConfig.scope,
+                        lanUrl: isLanAgent ? llmConfig.remoteUrl : undefined,
+                        baseUrl: isCustomAgent ? llmConfig.cloudBaseUrl || undefined : undefined,
+                        customApiKey:
+                          isCustomAgent || isLanAgent
+                            ? llmConfig.customApiKey || undefined
+                            : undefined,
+                        disableThinking: llmConfig.disableThinking,
+                      }
+                    );
+
+                    for await (const chunk of followUpStream) {
+                      if (!mountedRef.current || cancelled()) {
+                        ReasoningService.cancelActiveStream();
+                        break;
+                      }
+                      if (chunk.type === "content") {
+                        if (chunk.text) announceResponse();
+                        fullContent += chunk.text;
+                        scheduleContentFlush();
+                      }
+                    }
+                  }
+                } catch (err) {
+                  completeToolActivity();
+                  logger.error("Text tool call fallback execution failed", {
+                    error: (err as Error).message,
+                  });
+                }
+              }
+            }
           }
 
           flushContentNow();

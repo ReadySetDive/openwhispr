@@ -512,6 +512,89 @@ export function modelSupportsVision(modelId: string, providerId?: string): boole
   return false;
 }
 
+export interface ModelToolCapability {
+  supported: boolean;
+  finetuned: boolean;
+  quality: "optimal" | "limited" | "none";
+  details: string;
+}
+
+export function modelToolCapability(
+  modelId: string,
+  providerId?: string,
+  mode?: string
+): ModelToolCapability {
+  const isCloud = mode !== "local" && providerId !== "local";
+  if (isCloud) {
+    return {
+      supported: true,
+      finetuned: true,
+      quality: "optimal",
+      details: "Cloud models support native tool and function calling",
+    };
+  }
+
+  // Local model evaluation
+  const match =
+    modelId.match(/(?:-e|-E|-|_|^)(\d+(?:\.\d+)?)[bB]/) ||
+    modelId.match(/(\d+(?:\.\d+)?)[bB]/);
+  const paramSizeB = match ? parseFloat(match[1]) : 0;
+  const isQwen = /qwen/i.test(modelId);
+  const isGemma4 = /gemma-4/i.test(modelId);
+  const isGemmaOlder = /gemma/i.test(modelId) && !isGemma4;
+  const isToolFinetuned = isQwen || isGemma4;
+
+  if (paramSizeB >= 4) {
+    let details = "Large local model (>=4B) capable of tool calling";
+    if (isQwen) {
+      details = "Finetuned for tool calling (Qwen Instruct, >=4B)";
+    } else if (isGemma4) {
+      details = "Native tool calling trained (Gemma 4 IT / QAT, >=4B)";
+    } else if (isGemmaOlder) {
+      details =
+        "Older Gemma IT (>=4B) can follow tool prompts, but lacks native tool call tokens";
+    }
+    return {
+      supported: true,
+      finetuned: isToolFinetuned,
+      quality: "optimal",
+      details,
+    };
+  } else if (paramSizeB > 0) {
+    let details = "Small local model (<4B). Tool calling capability is limited";
+    if (isQwen) {
+      details =
+        "Finetuned for tools, but small (<4B). Complex tool arguments may be less reliable";
+    } else if (isGemma4) {
+      details = "Gemma 4 compact model (E2B) with native tool calling support";
+    } else if (isGemmaOlder) {
+      details =
+        "Older Gemma IT (<4B) is not tool-call trained. Qwen or Gemma 4 recommended";
+    }
+    return {
+      supported: isToolFinetuned,
+      finetuned: isToolFinetuned,
+      quality: isGemma4 ? "optimal" : "limited",
+      details,
+    };
+  }
+
+  return {
+    supported: true,
+    finetuned: isToolFinetuned,
+    quality: isToolFinetuned ? "optimal" : "limited",
+    details: "Tool calling supported",
+  };
+}
+
+export function modelSupportsTools(
+  modelId: string,
+  providerId?: string,
+  mode?: string
+): boolean {
+  return modelToolCapability(modelId, providerId, mode).supported;
+}
+
 export interface OpenAiApiConfig {
   tokenParam: "max_tokens" | "max_completion_tokens";
   supportsTemperature: boolean;

@@ -1,19 +1,20 @@
 import type { ToolDefinition, ToolResult } from "./ToolRegistry";
+import { searchDuckDuckGo } from "./duckduckgo";
 
 export const webSearchTool: ToolDefinition = {
   name: "web_search",
   description:
-    "Search the web for current information. Returns relevant web results with titles, URLs, and article text.",
+    "Search the web using DuckDuckGo for current information, facts, news, and live web pages. Returns relevant web results with titles, URLs, and snippet text.",
   parameters: {
     type: "object",
     properties: {
       query: {
         type: "string",
-        description: "The search query",
+        description: "The search query to look up on DuckDuckGo",
       },
       numResults: {
         type: "number",
-        description: "Number of results to return (default 5)",
+        description: "Number of search results to return (default 5)",
       },
     },
     required: ["query"],
@@ -26,10 +27,18 @@ export const webSearchTool: ToolDefinition = {
     const numResults = typeof args.numResults === "number" ? args.numResults : 5;
 
     try {
-      const raw = await window.electronAPI.agentWebSearch!(query, numResults);
+      let rawResults: any = null;
+      if (typeof window !== "undefined" && window.electronAPI?.agentWebSearch) {
+        const raw = await window.electronAPI.agentWebSearch(query, numResults);
+        rawResults = Array.isArray(raw?.results) ? raw.results : Array.isArray(raw) ? raw : null;
+      }
 
-      const results = Array.isArray(raw?.results)
-        ? raw.results.map(
+      if (!rawResults || rawResults.length === 0) {
+        rawResults = await searchDuckDuckGo(query, numResults);
+      }
+
+      const results = Array.isArray(rawResults)
+        ? rawResults.map(
             (r: { title?: string; url?: string; text?: string; publishedDate?: string }) => ({
               title: r.title || "",
               url: r.url || "",
@@ -37,18 +46,18 @@ export const webSearchTool: ToolDefinition = {
               publishedDate: r.publishedDate || null,
             })
           )
-        : raw;
+        : [];
 
       return {
         success: true,
         data: results,
-        displayText: `Found web results for "${query}"`,
+        displayText: `Found ${results.length} web result${results.length === 1 ? "" : "s"} for "${query}" via DuckDuckGo`,
       };
     } catch (error) {
       return {
         success: false,
         data: null,
-        displayText: `Web search failed: ${(error as Error).message}`,
+        displayText: `DuckDuckGo web search failed: ${(error as Error).message}`,
       };
     }
   },

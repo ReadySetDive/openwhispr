@@ -8,9 +8,13 @@ import {
   SelectLabel,
   SelectTrigger,
 } from "../ui/select";
-import { Cpu, Cloud, Sparkles, Eye } from "../icons";
+import { Cpu, Cloud, Sparkles, Eye, Wrench } from "../icons";
 import { cn } from "../lib/utils";
-import { modelRegistry, modelSupportsVision } from "../../models/ModelRegistry";
+import {
+  modelRegistry,
+  modelSupportsVision,
+  modelToolCapability,
+} from "../../models/ModelRegistry";
 import { useSettingsStore, selectResolvedLLMConfig } from "../../stores/settingsStore";
 import { useModelDownload, LOCAL_MODELS_CHANGED_EVENT } from "../../hooks/useModelDownload";
 import { DownloadProgressBar } from "../ui/DownloadProgressBar";
@@ -232,6 +236,7 @@ export function ChatModelSelector({
                 const isDownloaded = downloadedSet.has(m.id);
                 const hasVision = !!m.supportsVision;
                 const isVisionDownloaded = visionDownloadedSet.has(m.id);
+                const toolCap = modelToolCapability(m.id, "local", "local");
                 return (
                   <SelectItem
                     key={`local:${m.providerId}:${m.id}`}
@@ -245,6 +250,19 @@ export function ChatModelSelector({
                         <span className="text-[10px] text-muted-foreground/70 shrink-0">{m.size}</span>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
+                        {toolCap.supported && (
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-0.5 rounded px-1 text-[9px] font-semibold border",
+                              toolCap.quality === "optimal"
+                                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                                : "text-muted-foreground/60 border-border/40"
+                            )}
+                            title={toolCap.details}
+                          >
+                            <Wrench size={8} /> Tools
+                          </span>
+                        )}
                         {hasVision && (
                           <span
                             className={cn(
@@ -288,11 +306,19 @@ export function ChatModelSelector({
                           <Cloud size={13} className="text-muted-foreground shrink-0" />
                           <span className="truncate">{m.name}</span>
                         </div>
-                        {hasVision && (
-                          <span className="inline-flex items-center gap-0.5 rounded px-1 text-[9px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 shrink-0">
-                            <Eye size={8} /> Vision
+                        <div className="flex items-center gap-1 shrink-0">
+                          <span
+                            className="inline-flex items-center gap-0.5 rounded px-1 text-[9px] font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shrink-0"
+                            title="Supports tool calling"
+                          >
+                            <Wrench size={8} /> Tools
                           </span>
-                        )}
+                          {hasVision && (
+                            <span className="inline-flex items-center gap-0.5 rounded px-1 text-[9px] font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 shrink-0">
+                              <Eye size={8} /> Vision
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </SelectItem>
                   );

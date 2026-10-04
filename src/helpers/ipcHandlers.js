@@ -9544,41 +9544,15 @@ class IPCHandlers {
       }
     });
 
-    ipcMain.handle("agent-web-search", async (event, query, numResults = 5) => {
+    ipcMain.handle("agent-web-search", async (_event, query, numResults = 5) => {
       try {
-        const apiUrl = getApiUrl();
-        if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
-
-        const authHeader = await getAuthHeader(event);
-        if (!Object.keys(authHeader).length) throw new Error("Not authenticated");
-
-        debugLogger.debug("Agent web search request", { query, numResults }, "cloud-api");
-
-        const response = await proxyFetch(`${apiUrl}/api/agent/web-search`, {
-          method: "POST",
-          headers: withPolicyHeaders({
-            "Content-Type": "application/json",
-            ...authHeader,
-          }),
-          body: JSON.stringify({ query, numResults }),
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
-          }
-          if (response.status === 503) {
-            return { success: false, error: "Request timed out", code: "SERVER_ERROR" };
-          }
-          const error = await readPolicyResponseError(response, `API error: ${response.status}`);
-          return toPolicyFailure(error);
-        }
-
-        const data = await response.json();
-        return { success: true, ...data };
+        debugLogger.debug("Agent web search request via DuckDuckGo", { query, numResults }, "tools");
+        const { searchDuckDuckGo } = require("./duckduckgoSearch");
+        const results = await searchDuckDuckGo(query, numResults);
+        return { success: true, results };
       } catch (error) {
         debugLogger.error("Agent web search error:", error);
-        return toPolicyFailure(error);
+        return { success: false, error: error.message, results: [] };
       }
     });
 

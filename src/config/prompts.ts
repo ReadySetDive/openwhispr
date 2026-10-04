@@ -37,7 +37,7 @@ const TOOL_INSTRUCTIONS: Record<string, string> = {
   list_folders:
     "Use list_folders before create_note or update_note whenever a note is going into a folder, so you can reuse an existing folder whose name fits the note's topic instead of creating a near-duplicate.",
   web_search:
-    "Use web_search for questions about current events, facts you're unsure about, or anything requiring up-to-date information.",
+    "Use web_search to query DuckDuckGo for questions about current events, facts, news, documentation, or anything requiring up-to-date web information. When the user asks to search, look up, or find current information on the web, always call web_search.",
   copy_to_clipboard:
     "Use copy_to_clipboard when the user asks you to copy something to their clipboard.",
   get_snippet:
@@ -79,6 +79,8 @@ const CONNECTOR_TOOL_RULES =
 /** What the prompt reads from a tool: its name, and for connector tools their own line. */
 export interface PromptTool {
   name: string;
+  description?: string;
+  parameters?: Record<string, unknown>;
   promptInstruction?: string;
   connectorId?: string;
 }
@@ -94,11 +96,46 @@ export function getAgentSystemPrompt(
   );
   if (tools.length > 0) {
     const toolLines = tools
-      .map((tool) => tool.promptInstruction ?? TOOL_INSTRUCTIONS[tool.name])
+      .map((tool) => {
+        const instr = tool.promptInstruction ?? TOOL_INSTRUCTIONS[tool.name] ?? tool.description;
+        let paramStr = "";
+        if (tool.parameters && typeof tool.parameters === "object") {
+          const props = (tool.parameters as Record<string, unknown>).properties as
+            | Record<string, Record<string, unknown>>
+            | undefined;
+          const req =
+            ((tool.parameters as Record<string, unknown>).required as string[] | undefined) || [];
+          if (props) {
+            const propList = Object.entries(props).map(([k, v]) => {
+              const isReq = req.includes(k) ? " (required)" : "";
+              return `${k}: ${v?.type || "string"}${isReq}${v?.description ? ` - ${v.description}` : ""}`;
+            });
+            if (propList.length > 0) {
+              paramStr = ` (Parameters: ${propList.join(", ")})`;
+            }
+          }
+        }
+        return `- ${tool.name}: ${instr}${paramStr}`;
+      })
       .filter(Boolean);
+
     if (toolLines.length > 0) {
-      prompt += "\n\nYou have access to tools. " + toolLines.join(" ");
+      prompt +=
+        "\n\nYou have access to the following tools:\n" +
+        toolLines.join("\n") +
+        "\n\nWhen a tool is needed to answer a user's question or carry out an action, call it immediately. " +
+        "You can call tools natively, or output your tool invocation using this format:\n" +
+        `<tool_call>\n{"name": "tool_name", "arguments": {"param": "value"}}\n</tool_call>`;
     }
+
+    const hasWebSearch = tools.some((t) => t.name === "web_search");
+    if (hasWebSearch) {
+      prompt +=
+        "\n\nCRITICAL SEARCH DIRECTIVE: You have a live `web_search` tool connected to DuckDuckGo. " +
+        "Whenever the user asks about current events, news, recent facts, documentation, or asks to search or browse the web, you MUST call `web_search`. " +
+        "NEVER claim that you lack internet access, cannot browse the web, or have a fixed knowledge cutoff: ALWAYS call `web_search` instead.";
+    }
+
     if (tools.some((tool) => tool.connectorId)) {
       prompt += "\n\n" + CONNECTOR_TOOL_RULES;
     }

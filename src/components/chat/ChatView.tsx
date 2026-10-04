@@ -6,6 +6,7 @@ import { useChatMessageSender } from "./useChatMessageSender";
 import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
 import { ChatModelSelector, type ChatModelOverride } from "./ChatModelSelector";
+import { ChatToolsSelector } from "./ChatToolsSelector";
 import ConversationList from "./ConversationList";
 import { ConfirmDialog } from "../ui/dialog";
 import { PAGE_CONTENT_WIDTH_CLASS } from "../ui/pageWidth";
@@ -293,10 +294,17 @@ export default function ChatView() {
         </div>
         <div className="relative flex-1 min-w-80 min-h-0 flex flex-col">
           <div className="flex items-center justify-between border-b border-border/80 px-4 py-2 bg-background/60 backdrop-blur-sm z-10 dark:border-white/10 shrink-0">
-            <ChatModelSelector
-              override={activeOverride}
-              onOverrideChange={handleOverrideChange}
-            />
+            <div className="flex items-center gap-2">
+              <ChatModelSelector
+                override={activeOverride}
+                onOverrideChange={handleOverrideChange}
+              />
+              <ChatToolsSelector
+                effectiveModel={effectiveModel}
+                effectiveProvider={effectiveProvider}
+                effectiveMode={effectiveMode}
+              />
+            </div>
           </div>
           <ChatMessages
             messages={persistence.messages}

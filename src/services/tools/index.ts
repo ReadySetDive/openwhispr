@@ -19,6 +19,14 @@ import type { ContainerScope } from "../../types/chat";
 export { ToolRegistry } from "./ToolRegistry";
 export type { ToolDefinition, ToolResult } from "./ToolRegistry";
 
+export interface ToolToggles {
+  toolsEnabled?: boolean;
+  webSearch?: boolean;
+  notes?: boolean;
+  calendar?: boolean;
+  clipboard?: boolean;
+}
+
 interface ToolRegistrySettings {
   isSignedIn: boolean;
   calendarConnected: boolean;
@@ -30,31 +38,47 @@ interface ToolRegistrySettings {
   vocabulary?: DictionaryActions & SnippetActions;
   /** Present only when connectors are available (signed in, paid, policy allows). */
   connectors?: ConnectorToolSettings;
+  /** User-configured toggles from the chat header. */
+  toolToggles?: ToolToggles;
 }
 
 export function createToolRegistry(settings: ToolRegistrySettings): ToolRegistry {
   const registry = new ToolRegistry();
 
-  const useCloudSearch = settings.isSignedIn && settings.cloudBackupEnabled;
-  registry.register(createSearchNotesTool({ useCloudSearch, fixedScope: settings.searchScope }));
-  registry.register(getNoteTool);
-  registry.register(createNoteTool);
-  registry.register(updateNoteTool);
-  registry.register(listFoldersTool);
-  registry.register(clipboardTool);
-
-  if (settings.vocabulary) {
-    const snippets = settings.vocabulary.getSnippets();
-    if (snippets.length > 0) registry.register(createSnippetTool(snippets));
-    registry.register(createUpdateDictionaryTool(settings.vocabulary));
-    registry.register(createUpdateSnippetsTool(settings.vocabulary));
+  if (settings.toolToggles?.toolsEnabled === false) {
+    return registry;
   }
 
-  if (settings.isSignedIn && settings.webSearchEnabled) {
+  const allowNotes = settings.toolToggles?.notes !== false;
+  const allowClipboard = settings.toolToggles?.clipboard !== false;
+  const allowWebSearch = settings.toolToggles?.webSearch !== false;
+  const allowCalendar = settings.toolToggles?.calendar !== false;
+
+  if (allowNotes) {
+    const useCloudSearch = settings.isSignedIn && settings.cloudBackupEnabled;
+    registry.register(createSearchNotesTool({ useCloudSearch, fixedScope: settings.searchScope }));
+    registry.register(getNoteTool);
+    registry.register(createNoteTool);
+    registry.register(updateNoteTool);
+    registry.register(listFoldersTool);
+  }
+
+  if (allowClipboard) {
+    registry.register(clipboardTool);
+    if (settings.vocabulary) {
+      const snippets = settings.vocabulary.getSnippets();
+      if (snippets.length > 0) registry.register(createSnippetTool(snippets));
+      registry.register(createUpdateDictionaryTool(settings.vocabulary));
+      registry.register(createUpdateSnippetsTool(settings.vocabulary));
+    }
+  }
+
+  // Web search uses DuckDuckGo public search and does not require cloud sign-in
+  if (allowWebSearch && settings.webSearchEnabled) {
     registry.register(webSearchTool);
   }
 
-  if (settings.calendarConnected) {
+  if (allowCalendar && settings.calendarConnected) {
     registry.register(calendarTool);
     registry.register(calendarAvailabilityTool);
   }
