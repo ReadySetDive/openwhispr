@@ -1030,6 +1030,7 @@ export interface LlamaServerStatus {
   modelName: string | null;
   backend: GpuBackend;
   gpuAccelerated: boolean;
+  contextSize?: number;
 }
 
 export interface VulkanGpuResult {

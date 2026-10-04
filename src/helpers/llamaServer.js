@@ -898,6 +898,7 @@ class LlamaServerManager {
       modelName: this.modelPath ? path.basename(this.modelPath, ".gguf") : null,
       backend: this.activeBackend,
       gpuAccelerated: this.activeBackend === "vulkan" || this.activeBackend === "metal",
+      contextSize: this.activeContextSize || this.contextSize || DEFAULT_CONTEXT_SIZE,
     };
   }
 

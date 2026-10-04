@@ -7,6 +7,7 @@ import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
 import { ChatModelSelector, type ChatModelOverride } from "./ChatModelSelector";
 import { ChatToolsSelector } from "./ChatToolsSelector";
+import { ChatContextIndicator } from "./ChatContextIndicator";
 import ConversationList from "./ConversationList";
 import { ConfirmDialog } from "../ui/dialog";
 import { PAGE_CONTENT_WIDTH_CLASS } from "../ui/pageWidth";
@@ -305,6 +306,12 @@ export default function ChatView() {
                 effectiveMode={effectiveMode}
               />
             </div>
+            <ChatContextIndicator
+              messages={persistence.messages}
+              effectiveModel={effectiveModel}
+              effectiveProvider={effectiveProvider}
+              effectiveMode={effectiveMode}
+            />
           </div>
           <ChatMessages
             messages={persistence.messages}
