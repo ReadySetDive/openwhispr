@@ -126,16 +126,18 @@ export function getAgentSystemPrompt(
         "\n\nYou have access to the following tools:\n" +
         toolLines.join("\n") +
         "\n\nWhen a tool is needed to answer a user's question or carry out an action, call it immediately. " +
-        "You can call tools natively, or output your tool invocation using this format:\n" +
+        "Output your tool calls using native tool calling, or if using text, invoke with:\n" +
         `<tool_call>\n{"name": "tool_name", "arguments": {"param": "value"}}\n</tool_call>`;
     }
 
     const hasWebSearch = tools.some((t) => t.name === "web_search");
     if (hasWebSearch) {
       prompt +=
-        "\n\nCRITICAL SEARCH DIRECTIVE: You have a live `web_search` tool connected to DuckDuckGo. " +
-        "Whenever the user asks about current events, news, recent facts, documentation, or asks to search or browse the web, you MUST call `web_search`. " +
-        "NEVER claim that you lack internet access, cannot browse the web, or have a fixed knowledge cutoff: ALWAYS call `web_search` instead.";
+        "\n\nCRITICAL SEARCH & INFORMATION DIRECTIVES:" +
+        "\n1. You have a live `web_search` tool connected to the internet. Whenever the user asks about current events, news, recent facts, documentation, or asks to search or browse the web, you MUST call `web_search`. NEVER claim you lack internet access or have a knowledge cutoff: ALWAYS call `web_search` instead." +
+        "\n2. When search results contain news headlines, articles, or facts, summarize the specific news stories, events, and details directly for the user. Do NOT merely list publisher domain names or say 'outlets are reporting on a variety of topics'—provide the actual news content and headlines." +
+        "\n3. If you need more details from a specific webpage to answer the user's question, use `fetch_web_page` with the result's URL." +
+        "\n4. If the user asks for results from a previous search or asks what the news is, call `web_search` immediately or present the findings clearly. NEVER say you are 'actively processing results' or 'give me a moment' without executing a tool call.";
     }
 
     if (tools.some((tool) => tool.connectorId)) {

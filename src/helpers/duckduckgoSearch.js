@@ -1,7 +1,7 @@
 /**
- * DuckDuckGo public search helper for Localwhispr.
- * Uses DuckDuckGo's public Instant Answer API and public search endpoint
- * to provide real-time web results without requiring third-party API keys or cloud accounts.
+ * Web and news search helper for Localwhispr.
+ * Uses real-time news feeds, DuckDuckGo public HTML web search, and DuckDuckGo Instant Answers
+ * to provide up-to-date web results without requiring third-party API keys or cloud accounts.
  */
 
 function unescapeHtml(text) {
@@ -14,13 +14,67 @@ function unescapeHtml(text) {
     .replace(/&#x27;/g, "'")
     .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, " ")
     .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
     .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
 /**
- * Perform a web search using DuckDuckGo public endpoints.
+ * Checks whether the search query is looking for current news, headlines, or breaking stories.
+ */
+function isNewsQuery(query) {
+  const q = query.toLowerCase();
+  return /\b(news|headline|headlines|breaking|top stories|current events|latest updates|today's news)\b/.test(q);
+}
+
+/**
+ * Fetches real-time news headlines from public RSS feeds when news is requested.
+ */
+async function fetchNewsResults(query, limit = 5) {
+  try {
+    const isGeneral = /^(current\s+)?(top\s+)?(breaking\s+)?news(\s+today|\s+headlines)?$/i.test(query.trim());
+    const rssUrl = isGeneral
+      ? "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en"
+      : `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
+
+    const res = await fetch(rssUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept: "application/rss+xml, application/xml, text/xml",
+      },
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!res.ok) return [];
+
+    const xml = await res.text();
+    const itemRegex =
+      /<item>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<link>(.*?)<\/link>[\s\S]*?<pubDate>(.*?)<\/pubDate>[\s\S]*?(?:<description>([\s\S]*?)<\/description>)?[\s\S]*?<\/item>/gi;
+    const items = [];
+    let match;
+    while ((match = itemRegex.exec(xml)) !== null && items.length < limit) {
+      const title = unescapeHtml(match[1]);
+      const url = match[2].trim();
+      const pubDate = match[3].trim();
+      const desc = unescapeHtml(match[4] || "");
+      items.push({
+        title,
+        url,
+        text: desc ? `${desc} (${pubDate})` : `Published: ${pubDate}`,
+        publishedDate: pubDate,
+      });
+    }
+    return items;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Perform a web search using real-time news feeds and DuckDuckGo endpoints.
  * @param {string} query The search query string.
  * @param {number} numResults Maximum results to return (default: 5).
  * @returns {Promise<Array<{ title: string, url: string, text: string, publishedDate: string | null }>>}
@@ -34,67 +88,18 @@ async function searchDuckDuckGo(query, numResults = 5) {
   const seenUrls = new Set();
   const trimmedQuery = query.trim();
 
-  // 1. DuckDuckGo Instant Answer API (Official public API)
-  try {
-    const apiUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(trimmedQuery)}&format=json&no_html=1&skip_disambig=0`;
-    const res = await fetch(apiUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Accept: "application/json",
-      },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data.AbstractText) {
-        const url = data.AbstractURL || `https://duckduckgo.com/?q=${encodeURIComponent(trimmedQuery)}`;
-        results.push({
-          title: unescapeHtml(data.Heading || trimmedQuery),
-          url,
-          text: unescapeHtml(data.AbstractText),
-          publishedDate: null,
-        });
-        seenUrls.add(url);
+  // 1. If query is news-oriented, prioritize actual current news headlines
+  if (isNewsQuery(trimmedQuery)) {
+    const newsItems = await fetchNewsResults(trimmedQuery, numResults);
+    for (const item of newsItems) {
+      if (!seenUrls.has(item.url)) {
+        seenUrls.add(item.url);
+        results.push(item);
       }
-
-      if (Array.isArray(data.Results)) {
-        for (const r of data.Results) {
-          if (r.FirstURL && r.Text && !seenUrls.has(r.FirstURL)) {
-            seenUrls.add(r.FirstURL);
-            results.push({
-              title: unescapeHtml(r.Text.split(" - ")[0] || r.Text),
-              url: r.FirstURL,
-              text: unescapeHtml(r.Text),
-              publishedDate: null,
-            });
-          }
-        }
-      }
-
-      const processTopics = (topics) => {
-        if (!Array.isArray(topics)) return;
-        for (const item of topics) {
-          if (item.Topics && Array.isArray(item.Topics)) {
-            processTopics(item.Topics);
-          } else if (item.FirstURL && item.Text && !seenUrls.has(item.FirstURL)) {
-            seenUrls.add(item.FirstURL);
-            results.push({
-              title: unescapeHtml(item.Text.split(" - ")[0] || item.Text),
-              url: item.FirstURL,
-              text: unescapeHtml(item.Text),
-              publishedDate: null,
-            });
-          }
-        }
-      };
-      processTopics(data.RelatedTopics);
     }
-  } catch (err) {
-    // If Instant Answer endpoint fails or is blocked, proceed to HTML fallback
   }
 
-  // 2. Supplement / fallback with DuckDuckGo HTML web search
+  // 2. DuckDuckGo HTML web search for organic web pages and rich snippets
   if (results.length < numResults) {
     try {
       const htmlRes = await fetch(
@@ -107,6 +112,7 @@ async function searchDuckDuckGo(query, numResults = 5) {
               "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.9",
           },
+          signal: AbortSignal.timeout(4500),
         }
       );
 
@@ -145,8 +151,39 @@ async function searchDuckDuckGo(query, numResults = 5) {
           idx++;
         }
       }
-    } catch (err) {
-      // HTML search failed
+    } catch {
+      // HTML search failed or timed out
+    }
+  }
+
+  // 3. DuckDuckGo Instant Answer API for direct encyclopedia abstracts (definitions, entities)
+  if (results.length < numResults) {
+    try {
+      const apiUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(trimmedQuery)}&format=json&no_html=1&skip_disambig=0`;
+      const res = await fetch(apiUrl, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Accept: "application/json",
+        },
+        signal: AbortSignal.timeout(3000),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.AbstractText && !seenUrls.has(data.AbstractURL)) {
+          const url = data.AbstractURL || `https://duckduckgo.com/?q=${encodeURIComponent(trimmedQuery)}`;
+          results.unshift({
+            title: unescapeHtml(data.Heading || trimmedQuery),
+            url,
+            text: unescapeHtml(data.AbstractText),
+            publishedDate: null,
+          });
+          seenUrls.add(url);
+        }
+      }
+    } catch {
+      // Instant answer failed
     }
   }
 
@@ -156,4 +193,5 @@ async function searchDuckDuckGo(query, numResults = 5) {
 module.exports = {
   searchDuckDuckGo,
   unescapeHtml,
+  isNewsQuery,
 };

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import ReasoningService, { type AgentStreamChunk, type ToolMetadata } from "../../services/ReasoningService";
-import { parseTextToolCall } from "../../helpers/textToolCallParser";
+import { parseTextToolCall, stripToolCallTags } from "../../helpers/textToolCallParser";
 import { isEnterpriseProvider } from "../../models/ModelRegistry";
 import { providerSupportsImages } from "../../services/ai/inferenceProviders";
 import { getSettings, useSettingsStore } from "../../stores/settingsStore";
@@ -741,8 +741,8 @@ export function useChatStreaming({
           }
 
           // Fallback for models that output tool calls as raw text tokens (e.g. Gemma 4 / Qwen)
-          // instead of emitting OpenAI-style delta.tool_calls.
-          if (!hasNativeToolCalls && registry && fullContent.trim().length > 0) {
+          // or models that switch to text tool calls mid-conversation.
+          if (registry && fullContent.trim().length > 0) {
             const textCall = parseTextToolCall(
               fullContent,
               registry.getAll().map((t) => t.name)
@@ -882,6 +882,7 @@ export function useChatStreaming({
             }
           }
 
+          fullContent = stripToolCallTags(fullContent);
           flushContentNow();
           const hasDeliverableContent = fullContent.trim().length > 0;
           if (!responseAnnounced && !cancelled()) {

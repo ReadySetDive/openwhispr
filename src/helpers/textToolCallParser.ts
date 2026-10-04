@@ -229,3 +229,17 @@ export function parseTextToolCall(
 
   return null;
 }
+
+/**
+ * Strips raw tool call syntax/tags from text so unparsed or malformed tool call
+ * markup never leaks into user-facing chat responses.
+ */
+export function stripToolCallTags(text: string): string {
+  if (!text || typeof text !== "string") return "";
+  return text
+    .replace(/<tool_call>[\s\S]*?<\/tool_call>/gi, "")
+    .replace(/<\|tool_call>[\s\S]*?<tool_call\|>/gi, "")
+    .replace(/```(?:json)?\s*\{\s*["'](?:name|tool)["']\s*:\s*["'][a-zA-Z0-9_]+["'][\s\S]*?\}\s*```/gi, "")
+    .trim();
+}
+
