@@ -51,7 +51,7 @@ function loadEnvironmentManager(t, userDataDirectory) {
   }
 }
 
-test("fresh Chinese browser locale survives settings hydration", async (t) => {
+test("non-English browser locale resolves to English on startup", async (t) => {
   installNavigatorLanguage(t, "zh-Hans-CN");
   installBrowserGlobals(t, {
     initialStorage: {
@@ -87,16 +87,16 @@ test("fresh Chinese browser locale survives settings hydration", async (t) => {
       persistedLanguage: localStorage.getItem("uiLanguage"),
     },
     {
-      initialLanguage: "zh-CN",
-      initialStoreLanguage: "zh-CN",
-      hydratedLanguage: "zh-CN",
-      hydratedStoreLanguage: "zh-CN",
+      initialLanguage: "en",
+      initialStoreLanguage: "en",
+      hydratedLanguage: "en",
+      hydratedStoreLanguage: "en",
       persistedLanguage: null,
     }
   );
 });
 
-test("main locale fallback remains implicit and yields to an explicit preference", (t) => {
+test("main locale fallback resolves to English", (t) => {
   const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "openwhispr-ui-language-"));
   const originalEnvironment = { ...process.env };
   const originalResourcesPath = process.resourcesPath;
@@ -121,9 +121,9 @@ test("main locale fallback remains implicit and yields to an explicit preference
     { unsetLanguage, detectedLanguage, environmentAfterDetection, explicitLanguage },
     {
       unsetLanguage: "",
-      detectedLanguage: "zh-TW",
+      detectedLanguage: "en",
       environmentAfterDetection: undefined,
-      explicitLanguage: "de",
+      explicitLanguage: "en",
     }
   );
 });
