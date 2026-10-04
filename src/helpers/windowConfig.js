@@ -125,34 +125,23 @@ function fitDictationErrorWindowToWorkArea(requestedSize, workArea) {
   };
 }
 
-// The pill docks 12px from the window's bottom corner (voice-pill-position
-// classes); the remaining area is click-through headroom so the hover
-// tooltip and the Signal glow's halo render without clipping at the window
-// bounds. Sized with dictation-panel.css's dock insets — change together.
-// The box fits the compact pill + gap + hover cancel (134px) inside its 184px
-// usable width, so the cancel control never clips. Those three numbers are
-// VOICE_PILL_FOOTPRINT.recording and VOICE_PILL_CANCEL in
-// src/helpers/voicePillPresentation.js — the renderer-side half of this
-// contract, and the only place they are defined.
-const PILL_WINDOW_SIZE = { width: 208, height: 120 };
+// Sized to match the interactable UI elements plus 12px dock insets for the
+// glow/halo, eliminating click-blocking dead zones around the window.
+// Idle pill: 40x40 -> 64x64.
+// Recording pill + hover cancel: 134x36 -> 160x64.
+const PILL_WINDOW_SIZE = { width: 64, height: 64 };
 
 const WINDOW_SIZES = {
-  // BASE and RECORDING are deliberately the same box. Resizing a transparent
-  // always-on-top window paints one compositor frame of the stale texture
-  // inside the new bounds before the renderer catches up — no resize mask can
-  // cover it — so recording edges must never call setBounds. The keys stay
-  // distinct for the size ladder's ranking; identical bounds make the native
-  // resize a no-op.
   BASE: PILL_WINDOW_SIZE,
-  RECORDING: PILL_WINDOW_SIZE,
+  RECORDING: { width: 160, height: 64 },
   DICTATION_ERROR: { width: DICTATION_ERROR_WINDOW_LIMITS.width, height: 112 },
   DICTATION_ERROR_WITH_TRANSCRIPT: {
     width: DICTATION_ERROR_WINDOW_LIMITS.width,
     height: 168,
   },
   WITH_MENU: { width: 240, height: 280 },
-  WITH_TOAST: { width: 400, height: 500 },
-  EXPANDED: { width: 400, height: 500 },
+  WITH_TOAST: { width: 400, height: 260 },
+  EXPANDED: { width: 400, height: 320 },
   ASSISTANT: ASSISTANT_WINDOW_SIZE,
 };
 

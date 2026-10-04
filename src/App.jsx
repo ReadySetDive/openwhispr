@@ -678,6 +678,17 @@ export default function App() {
           >
             <VoicePill
               ref={buttonRef}
+              title={
+                canReopenLiveTranscript
+                  ? t("transcriptionPreview.label")
+                  : assistant.mounted
+                    ? t("settingsPage.agentConfig.title")
+                    : liveTranscript.mounted
+                      ? t("transcriptionPreview.label")
+                      : typeof micTooltip === "string"
+                        ? micTooltip
+                        : undefined
+              }
               variant={anyPanelOpen ? "panel" : "floating"}
               state={commonPillState}
               expanded={!anyPanelOpen && isCompactPill}
